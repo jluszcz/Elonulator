@@ -1,3 +1,19 @@
+// Import shared utility functions
+import { formatCurrency, formatNumber, formatNumberWithCommas } from './utils.js';
+
+// Utility: Debounce function to limit calculation frequency
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // State
 let billionairesData = null;
 let medianNetWorth = 0;
@@ -17,33 +33,6 @@ const lastUpdatedEl = document.getElementById('last-updated');
 const loadingEl = document.getElementById('loading');
 const errorEl = document.getElementById('error');
 const errorMessageEl = document.getElementById('error-message');
-
-// Utility functions
-function formatCurrency(amount) {
-    if (amount >= 1000000000) {
-        return `$${(amount / 1000000000).toFixed(2)} billion`;
-    } else if (amount >= 1000000) {
-        return `$${(amount / 1000000).toFixed(2)} million`;
-    } else if (amount >= 1000) {
-        return `$${(amount / 1000).toFixed(2)} thousand`;
-    } else {
-        return `$${amount.toFixed(2)}`;
-    }
-}
-
-function formatNumber(num) {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(num);
-}
-
-function formatNumberWithCommas(num) {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(num);
-}
 
 function showError(message) {
     errorMessageEl.textContent = message;
@@ -193,6 +182,9 @@ function calculateEquivalent() {
     }
 }
 
+// Create debounced version of calculateEquivalent for input handlers
+const debouncedCalculateEquivalent = debounce(calculateEquivalent, 200);
+
 // Update the comparison text with context
 function updateComparisonText(billionaireAmount, medianAmount, billionaireNetWorth, currentMedianNetWorth) {
     if (calculationDirection === 'billionaire-to-median') {
@@ -239,7 +231,7 @@ function formatBillionaireAmountInput() {
     const newCursorPosition = cursorPosition + lengthDiff;
     billionaireAmountInput.setSelectionRange(newCursorPosition, newCursorPosition);
 
-    calculateEquivalent();
+    debouncedCalculateEquivalent();
 }
 
 // Format median American amount input with commas as user types
@@ -269,7 +261,7 @@ function formatMedianAmountInput() {
     const newCursorPosition = cursorPosition + lengthDiff;
     medianAmericanAmountInput.setSelectionRange(newCursorPosition, newCursorPosition);
 
-    calculateEquivalent();
+    debouncedCalculateEquivalent();
 }
 
 // Format net worth inputs with commas
@@ -292,12 +284,13 @@ function formatNetWorthInputs() {
 
     // Recalculate if there's an amount
     if (billionaireAmountInput.value) {
-        calculateEquivalent();
+        debouncedCalculateEquivalent();
     }
 }
 
 // Event listeners
 billionaireSelect.addEventListener('change', handleBillionaireSelection);
+// Input formatting happens immediately, but calculations are debounced
 billionaireAmountInput.addEventListener('input', formatBillionaireAmountInput);
 medianAmericanAmountInput.addEventListener('input', formatMedianAmountInput);
 billionaireNetWorthInput.addEventListener('input', formatNetWorthInputs);
