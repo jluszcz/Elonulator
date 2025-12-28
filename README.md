@@ -54,7 +54,7 @@ npm run deploy
 ## Data Sources
 
 - Billionaire net worth: Estimates based on Forbes Real-Time Billionaires List
-- Median American net worth: Federal Reserve Survey of Consumer Finances (2024)
+- Median American net worth: Federal Reserve Survey of Consumer Finances
 
 Note: Net worth figures are estimates and fluctuate frequently. The data in this application is updated manually and may not reflect real-time changes.
 

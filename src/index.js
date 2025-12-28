@@ -1,4 +1,4 @@
-// Static billionaire data (as of December 2024)
+// Static billionaire data (as of December 2025)
 // This data can be updated manually or could be fetched from an API in the future
 // Source: https://www.forbes.com/real-time-billionaires/
 const BILLIONAIRE_DATA = [
@@ -34,7 +34,7 @@ const BILLIONAIRE_DATA = [
     }
 ];
 
-const MEDIAN_AMERICAN_NET_WORTH = 193000; // $193,000 (as of 2024)
+const MEDIAN_AMERICAN_NET_WORTH = 193000; // $193,000 (as of December 2025)
 
 export default {
     async fetch(request, env, ctx) {
@@ -69,7 +69,7 @@ export default {
             return new Response(JSON.stringify({
                 billionaires: BILLIONAIRE_DATA,
                 medianAmericanNetWorth: MEDIAN_AMERICAN_NET_WORTH,
-                lastUpdated: "2024-12-27"
+                lastUpdated: "2025-12-27"
             }), {
                 headers: corsHeaders
             });

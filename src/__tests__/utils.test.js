@@ -1,7 +1,12 @@
+// Import formatting functions from public/utils.js
 import {
     formatCurrency,
     formatNumber,
-    formatNumberWithCommas,
+    formatNumberWithCommas
+} from '../../public/utils.js';
+
+// Import calculation functions from src/utils.js
+import {
     calculateMedianEquivalent,
     calculateBillionaireEquivalent,
     calculatePercentageOfWealth
@@ -119,8 +124,19 @@ describe('calculateMedianEquivalent', () => {
     });
 
     test('throws error for missing parameters', () => {
-        expect(() => calculateMedianEquivalent(0, 1000, 1000)).toThrow('All parameters are required');
-        expect(() => calculateMedianEquivalent(1000, 0, 1000)).toThrow('All parameters are required');
+        expect(() => calculateMedianEquivalent(null, 1000, 1000)).toThrow('All parameters are required');
+        expect(() => calculateMedianEquivalent(1000, null, 1000)).toThrow('All parameters are required');
+        expect(() => calculateMedianEquivalent(1000, 1000, undefined)).toThrow('All parameters are required');
+    });
+
+    test('throws error for zero net worth values', () => {
+        expect(() => calculateMedianEquivalent(1000, 0, 1000)).toThrow('All values must be positive');
+        expect(() => calculateMedianEquivalent(1000, 1000, 0)).toThrow('All values must be positive');
+    });
+
+    test('handles zero amount correctly', () => {
+        const result = calculateMedianEquivalent(0, 744000000000, 193000);
+        expect(result).toBe(0);
     });
 
     test('throws error for negative values', () => {
@@ -145,8 +161,19 @@ describe('calculateBillionaireEquivalent', () => {
     });
 
     test('throws error for missing parameters', () => {
-        expect(() => calculateBillionaireEquivalent(0, 1000, 1000)).toThrow('All parameters are required');
-        expect(() => calculateBillionaireEquivalent(1000, 0, 1000)).toThrow('All parameters are required');
+        expect(() => calculateBillionaireEquivalent(null, 1000, 1000)).toThrow('All parameters are required');
+        expect(() => calculateBillionaireEquivalent(1000, null, 1000)).toThrow('All parameters are required');
+        expect(() => calculateBillionaireEquivalent(1000, 1000, undefined)).toThrow('All parameters are required');
+    });
+
+    test('throws error for zero net worth values', () => {
+        expect(() => calculateBillionaireEquivalent(1000, 0, 1000)).toThrow('All values must be positive');
+        expect(() => calculateBillionaireEquivalent(1000, 1000, 0)).toThrow('All values must be positive');
+    });
+
+    test('handles zero amount correctly', () => {
+        const result = calculateBillionaireEquivalent(0, 193000, 744000000000);
+        expect(result).toBe(0);
     });
 
     test('throws error for negative values', () => {
@@ -172,11 +199,21 @@ describe('calculatePercentageOfWealth', () => {
     });
 
     test('throws error for missing parameters', () => {
-        expect(() => calculatePercentageOfWealth(0, 1000)).toThrow('Both parameters are required');
-        expect(() => calculatePercentageOfWealth(1000, 0)).toThrow('Both parameters are required');
+        expect(() => calculatePercentageOfWealth(null, 1000)).toThrow('Both parameters are required');
+        expect(() => calculatePercentageOfWealth(1000, null)).toThrow('Both parameters are required');
+        expect(() => calculatePercentageOfWealth(undefined, undefined)).toThrow('Both parameters are required');
     });
 
-    test('throws error for invalid total wealth', () => {
+    test('throws error for zero total wealth', () => {
+        expect(() => calculatePercentageOfWealth(1000, 0)).toThrow('Total wealth must be positive');
+    });
+
+    test('throws error for negative values', () => {
         expect(() => calculatePercentageOfWealth(100, -1000)).toThrow('Total wealth must be positive');
+        expect(() => calculatePercentageOfWealth(-100, 1000)).toThrow('Amount must be non-negative');
+    });
+
+    test('handles zero amount correctly', () => {
+        expect(calculatePercentageOfWealth(0, 1000)).toBe('0.0');
     });
 });

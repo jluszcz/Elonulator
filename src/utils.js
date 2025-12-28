@@ -1,50 +1,7 @@
 /**
- * Utility functions for the Elonulator application
+ * Calculation utility functions for the Elonulator application
+ * Note: Formatting functions are in public/utils.js
  */
-
-/**
- * Format a number as currency with appropriate unit (billion, million, thousand)
- * @param {number} amount - The amount to format
- * @returns {string} Formatted currency string
- */
-export function formatCurrency(amount) {
-    const absAmount = Math.abs(amount);
-    const sign = amount < 0 ? '-' : '';
-
-    if (absAmount >= 1000000000) {
-        return `$${sign}${(absAmount / 1000000000).toFixed(2)} billion`;
-    } else if (absAmount >= 1000000) {
-        return `$${sign}${(absAmount / 1000000).toFixed(2)} million`;
-    } else if (absAmount >= 1000) {
-        return `$${sign}${(absAmount / 1000).toFixed(2)} thousand`;
-    } else {
-        return `$${amount.toFixed(2)}`;
-    }
-}
-
-/**
- * Format a number with commas as thousands separator and 2 decimal places
- * @param {number} num - The number to format
- * @returns {string} Formatted number string
- */
-export function formatNumber(num) {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(num);
-}
-
-/**
- * Format a number with commas as thousands separator (no decimal places)
- * @param {number} num - The number to format
- * @returns {string} Formatted number string
- */
-export function formatNumberWithCommas(num) {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(num);
-}
 
 /**
  * Calculate equivalent amount for median American based on billionaire spending
@@ -54,7 +11,9 @@ export function formatNumberWithCommas(num) {
  * @returns {number} Equivalent amount for median American
  */
 export function calculateMedianEquivalent(billionaireAmount, billionaireNetWorth, medianNetWorth) {
-    if (!billionaireAmount || !billionaireNetWorth || !medianNetWorth) {
+    if (billionaireAmount === null || billionaireAmount === undefined ||
+        billionaireNetWorth === null || billionaireNetWorth === undefined ||
+        medianNetWorth === null || medianNetWorth === undefined) {
         throw new Error('All parameters are required');
     }
     if (billionaireAmount < 0 || billionaireNetWorth <= 0 || medianNetWorth <= 0) {
@@ -73,7 +32,9 @@ export function calculateMedianEquivalent(billionaireAmount, billionaireNetWorth
  * @returns {number} Equivalent amount for billionaire
  */
 export function calculateBillionaireEquivalent(medianAmount, medianNetWorth, billionaireNetWorth) {
-    if (!medianAmount || !medianNetWorth || !billionaireNetWorth) {
+    if (medianAmount === null || medianAmount === undefined ||
+        medianNetWorth === null || medianNetWorth === undefined ||
+        billionaireNetWorth === null || billionaireNetWorth === undefined) {
         throw new Error('All parameters are required');
     }
     if (medianAmount < 0 || medianNetWorth <= 0 || billionaireNetWorth <= 0) {
@@ -91,11 +52,15 @@ export function calculateBillionaireEquivalent(medianAmount, medianNetWorth, bil
  * @returns {string} Percentage with 1 decimal place
  */
 export function calculatePercentageOfWealth(amount, totalWealth) {
-    if (!amount || !totalWealth) {
+    if (amount === null || amount === undefined ||
+        totalWealth === null || totalWealth === undefined) {
         throw new Error('Both parameters are required');
     }
     if (totalWealth <= 0) {
         throw new Error('Total wealth must be positive');
+    }
+    if (amount < 0) {
+        throw new Error('Amount must be non-negative');
     }
 
     return ((amount / totalWealth) * 100).toFixed(1);

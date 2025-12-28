@@ -112,17 +112,13 @@ function swapDirection() {
         ? 'median-to-billionaire'
         : 'billionaire-to-median';
 
-    // Update readonly states
+    // Update readonly states (CSS handles styling via input[readonly] selector)
     if (calculationDirection === 'billionaire-to-median') {
         billionaireAmountInput.removeAttribute('readonly');
         medianAmericanAmountInput.setAttribute('readonly', 'readonly');
-        billionaireAmountInput.style.backgroundColor = '';
-        medianAmericanAmountInput.style.backgroundColor = '#f8f9fa';
     } else {
         billionaireAmountInput.setAttribute('readonly', 'readonly');
         medianAmericanAmountInput.removeAttribute('readonly');
-        billionaireAmountInput.style.backgroundColor = '#f8f9fa';
-        medianAmericanAmountInput.style.backgroundColor = '';
     }
 
     // Recalculate
@@ -297,9 +293,8 @@ billionaireNetWorthInput.addEventListener('input', formatNetWorthInputs);
 medianNetWorthInput.addEventListener('input', formatNetWorthInputs);
 swapDirectionBtn.addEventListener('click', swapDirection);
 
-// Initialize readonly state
+// Initialize readonly state (CSS handles styling via input[readonly] selector)
 medianAmericanAmountInput.setAttribute('readonly', 'readonly');
-medianAmericanAmountInput.style.backgroundColor = '#f8f9fa';
 
 // Load data on page load
 loadBillionaireData();
