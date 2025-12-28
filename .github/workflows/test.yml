@@ -9,8 +9,6 @@ on:
       - main
 
 jobs:
-  if:
-    false
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest

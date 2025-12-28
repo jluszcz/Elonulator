@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elonulator - Wealth Perspective Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1><a href="index.html">Elonulator</a></h1>
+            </div>
+        </header>
+
+        <main class="app">
+            <div class="input-group">
+                <label for="billionaire-select">Select Billionaire</label>
+                <select id="billionaire-select">
+                    <option value="">Loading...</option>
+                </select>
+            </div>
+
+            <div class="wealth-display">
+                <div class="wealth-stat">
+                    <label for="billionaire-net-worth">Their Net Worth</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">$</span>
+                        <input type="text" id="billionaire-net-worth" class="stat-value-input" inputmode="decimal" />
+                    </div>
+                </div>
+                <div class="wealth-stat">
+                    <label for="median-net-worth">Median American Net Worth</label>
+                    <div class="input-wrapper">
+                        <span class="currency-symbol">$</span>
+                        <input type="text" id="median-net-worth" class="stat-value-input" inputmode="decimal" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="calculator-section">
+                <h2>Wealth Perspective Calculator</h2>
+                <p class="description">
+                    Enter an amount the billionaire might spend, and see what that amount
+                    would be equivalent to for the median American.
+                </p>
+
+                <div class="calculator-inputs">
+                    <div class="input-group">
+                        <label for="billionaire-amount">Amount for Billionaire</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="text" id="billionaire-amount" placeholder="0" inputmode="decimal" />
+                        </div>
+                    </div>
+
+                    <button type="button" class="equals-sign" id="swap-direction" title="Click to swap calculation direction">=</button>
+
+                    <div class="input-group">
+                        <label for="median-american-amount">Equivalent for Median American</label>
+                        <div class="input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="text" id="median-american-amount" placeholder="0" inputmode="decimal" />
+                        </div>
+                    </div>
+                </div>
+
+                <div id="comparison-text" class="comparison-text" style="display: none;">
+                    <p id="comparison-message"></p>
+                </div>
+            </div>
+
+            <div id="loading" class="loading" style="display: none;">
+                <p>Loading billionaire data...</p>
+            </div>
+
+            <div id="error" class="error" style="display: none;">
+                <p id="error-message"></p>
+            </div>
+        </main>
+
+        <footer>
+            <p class="attribution">
+                Data sources: Forbes, Federal Reserve Survey of Consumer Finances
+            </p>
+            <p class="disclaimer">
+                Net worth figures are estimates and fluctuate frequently.
+                Last updated: <span id="last-updated">-</span>
+            </p>
+        </footer>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
