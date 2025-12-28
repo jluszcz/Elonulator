@@ -1,0 +1,28 @@
+{
+  "name": "elonulator",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A web application that visualizes wealth inequality through relative worth calculations",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "build": "echo 'Build complete - static assets ready'",
+    "deploy": "wrangler deploy",
+    "test": "jest --coverage"
+  },
+  "keywords": [
+    "wealth",
+    "inequality",
+    "calculator",
+    "cloudflare-workers"
+  ],
+  "author": "Jacob Luszcz",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250105.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.31.0"
+  }
+}
