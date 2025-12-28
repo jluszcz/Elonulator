@@ -200,12 +200,12 @@ function updateComparisonText(billionaireAmount, medianAmount, billionaireNetWor
     comparisonTextEl.style.display = 'block';
 }
 
-// Format billionaire amount input with commas as user types
-function formatBillionaireAmountInput() {
-    if (billionaireAmountInput.hasAttribute('readonly')) return;
+// Shared function to format input with commas as user types
+function formatInputWithCommas(inputElement) {
+    if (inputElement.hasAttribute('readonly')) return;
 
-    const cursorPosition = billionaireAmountInput.selectionStart;
-    const oldValue = billionaireAmountInput.value;
+    const cursorPosition = inputElement.selectionStart;
+    const oldValue = inputElement.value;
     const oldLength = oldValue.length;
 
     const cleanValue = oldValue.replace(/[^0-9.]/g, '');
@@ -220,44 +220,24 @@ function formatBillionaireAmountInput() {
         formattedValue += '.' + (decimalPart || '');
     }
 
-    billionaireAmountInput.value = formattedValue;
+    inputElement.value = formattedValue;
 
     const newLength = formattedValue.length;
     const lengthDiff = newLength - oldLength;
     const newCursorPosition = cursorPosition + lengthDiff;
-    billionaireAmountInput.setSelectionRange(newCursorPosition, newCursorPosition);
+    inputElement.setSelectionRange(newCursorPosition, newCursorPosition);
 
     debouncedCalculateEquivalent();
 }
 
+// Format billionaire amount input with commas as user types
+function formatBillionaireAmountInput() {
+    formatInputWithCommas(billionaireAmountInput);
+}
+
 // Format median American amount input with commas as user types
 function formatMedianAmountInput() {
-    if (medianAmericanAmountInput.hasAttribute('readonly')) return;
-
-    const cursorPosition = medianAmericanAmountInput.selectionStart;
-    const oldValue = medianAmericanAmountInput.value;
-    const oldLength = oldValue.length;
-
-    const cleanValue = oldValue.replace(/[^0-9.]/g, '');
-    const parts = cleanValue.split('.');
-    let integerPart = parts[0];
-    const decimalPart = parts[1];
-
-    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-    let formattedValue = integerPart;
-    if (parts.length > 1) {
-        formattedValue += '.' + (decimalPart || '');
-    }
-
-    medianAmericanAmountInput.value = formattedValue;
-
-    const newLength = formattedValue.length;
-    const lengthDiff = newLength - oldLength;
-    const newCursorPosition = cursorPosition + lengthDiff;
-    medianAmericanAmountInput.setSelectionRange(newCursorPosition, newCursorPosition);
-
-    debouncedCalculateEquivalent();
+    formatInputWithCommas(medianAmericanAmountInput);
 }
 
 // Format net worth inputs with commas
