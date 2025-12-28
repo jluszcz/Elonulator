@@ -1,6 +1,7 @@
 /**
  * Tests for CloudFlare Worker
  */
+import { jest } from '@jest/globals';
 
 // Mock the worker module
 const workerModule = await import('../index.js');

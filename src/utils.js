@@ -8,12 +8,15 @@
  * @returns {string} Formatted currency string
  */
 export function formatCurrency(amount) {
-    if (amount >= 1000000000) {
-        return `$${(amount / 1000000000).toFixed(2)} billion`;
-    } else if (amount >= 1000000) {
-        return `$${(amount / 1000000).toFixed(2)} million`;
-    } else if (amount >= 1000) {
-        return `$${(amount / 1000).toFixed(2)} thousand`;
+    const absAmount = Math.abs(amount);
+    const sign = amount < 0 ? '-' : '';
+
+    if (absAmount >= 1000000000) {
+        return `$${sign}${(absAmount / 1000000000).toFixed(2)} billion`;
+    } else if (absAmount >= 1000000) {
+        return `$${sign}${(absAmount / 1000000).toFixed(2)} million`;
+    } else if (absAmount >= 1000) {
+        return `$${sign}${(absAmount / 1000).toFixed(2)} thousand`;
     } else {
         return `$${amount.toFixed(2)}`;
     }

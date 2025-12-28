@@ -31,6 +31,30 @@ describe('formatCurrency', () => {
         expect(formatCurrency(50.5)).toBe('$50.50');
         expect(formatCurrency(0)).toBe('$0.00');
     });
+
+    test('handles negative numbers', () => {
+        expect(formatCurrency(-1000000000)).toBe('$-1.00 billion');
+        expect(formatCurrency(-1000000)).toBe('$-1.00 million');
+        expect(formatCurrency(-1000)).toBe('$-1.00 thousand');
+        expect(formatCurrency(-100)).toBe('$-100.00');
+    });
+
+    test('handles boundary values correctly', () => {
+        // Just below billion threshold
+        expect(formatCurrency(999999999)).toBe('$1000.00 million');
+        // Exactly at billion threshold
+        expect(formatCurrency(1000000000)).toBe('$1.00 billion');
+
+        // Just below million threshold
+        expect(formatCurrency(999999)).toBe('$1000.00 thousand');
+        // Exactly at million threshold
+        expect(formatCurrency(1000000)).toBe('$1.00 million');
+
+        // Just below thousand threshold
+        expect(formatCurrency(999)).toBe('$999.00');
+        // Exactly at thousand threshold
+        expect(formatCurrency(1000)).toBe('$1.00 thousand');
+    });
 });
 
 describe('formatNumber', () => {
@@ -57,14 +81,34 @@ describe('formatNumberWithCommas', () => {
         expect(formatNumberWithCommas(1234.56)).toBe('1,235');
         expect(formatNumberWithCommas(999.4)).toBe('999');
     });
+
+    test('handles decimal inputs at boundaries', () => {
+        // Test rounding up at .5
+        expect(formatNumberWithCommas(999.5)).toBe('1,000');
+        expect(formatNumberWithCommas(1000.5)).toBe('1,001');
+
+        // Test rounding down below .5
+        expect(formatNumberWithCommas(999.4)).toBe('999');
+        expect(formatNumberWithCommas(1000.4)).toBe('1,000');
+
+        // Test rounding up above .5
+        expect(formatNumberWithCommas(999.6)).toBe('1,000');
+        expect(formatNumberWithCommas(1000.6)).toBe('1,001');
+    });
+
+    test('handles edge cases with decimals', () => {
+        expect(formatNumberWithCommas(0.1)).toBe('0');
+        expect(formatNumberWithCommas(0.9)).toBe('1');
+        expect(formatNumberWithCommas(0.5)).toBe('1');
+    });
 });
 
 describe('calculateMedianEquivalent', () => {
     test('calculates correct equivalent amount', () => {
         // If billionaire spends $100B out of $744B net worth (13.44%)
-        // Median American equivalent: $193,000 * 0.1344 = $25,939.78
+        // Median American equivalent: $193,000 * (100B / 744B) = $25,940.86
         const result = calculateMedianEquivalent(100000000000, 744000000000, 193000);
-        expect(result).toBeCloseTo(25939.78, 2);
+        expect(result).toBeCloseTo(25940.86, 2);
     });
 
     test('calculates small percentages correctly', () => {
@@ -88,9 +132,9 @@ describe('calculateMedianEquivalent', () => {
 describe('calculateBillionaireEquivalent', () => {
     test('calculates correct equivalent amount', () => {
         // If median American spends $1,000 out of $193,000 net worth (0.518%)
-        // Billionaire equivalent: $744B * 0.00518 = $3.85B
+        // Billionaire equivalent: $744B * (1000 / 193000) = $3.854B
         const result = calculateBillionaireEquivalent(1000, 193000, 744000000000);
-        expect(result).toBeCloseTo(3854404145.08, 2);
+        expect(result).toBeCloseTo(3854922279.79, 2);
     });
 
     test('calculates large percentages correctly', () => {

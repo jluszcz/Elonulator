@@ -8,7 +8,7 @@
     "dev": "wrangler dev",
     "build": "echo 'Build complete - static assets ready'",
     "deploy": "wrangler deploy",
-    "test": "jest --coverage"
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest --coverage"
   },
   "keywords": [
     "wealth",
