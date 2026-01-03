@@ -1,3 +1,5 @@
+import { describe, test, expect } from 'vitest';
+
 // Import formatting functions from public/utils.js
 import {
     formatCurrency,
