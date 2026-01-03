@@ -1,7 +1,7 @@
 /**
  * Tests for CloudFlare Worker
  */
-import { jest } from '@jest/globals';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 
 // Mock the worker module
 const workerModule = await import('../index.js');
@@ -14,7 +14,7 @@ describe('CloudFlare Worker', () => {
     beforeEach(() => {
         mockEnv = {
             ASSETS: {
-                fetch: jest.fn().mockResolvedValue(new Response('mock asset'))
+                fetch: vi.fn().mockResolvedValue(new Response('mock asset'))
             }
         };
         mockCtx = {};
