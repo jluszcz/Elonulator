@@ -22,7 +22,7 @@
     "@cloudflare/workers-types": "^4.20260124.0",
     "@vitest/coverage-v8": "^3.0.0",
     "typescript": "^5.6.0",
-    "vitest": "^3.0.0",
+    "vitest": "^4.0.18",
     "wrangler": "^4.60.0"
   }
 }
