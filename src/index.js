@@ -1,40 +1,37 @@
-// Static billionaire data (as of December 2025)
+// Static billionaire data (as of June 2026)
 // This data can be updated manually or could be fetched from an API in the future
 // Source: https://www.forbes.com/real-time-billionaires/
+// Net worths are entered in billions of dollars for easy data entry.
+const BILLION = 1000000000;
 const BILLIONAIRE_DATA = [
     {
-        id: 1,
         name: "Elon Musk",
-        netWorth: 744000000000, // $744 billion
+        netWorthBillions: 788,
         source: "Tesla, SpaceX, X"
     },
     {
-        id: 2,
         name: "Larry Page",
-        netWorth: 257000000000, // $257 billion
+        netWorthBillions: 300,
         source: "Google"
     },
     {
-        id: 3,
+        name: "Sergey Brin",
+        netWorthBillions: 277,
+        source: "Google"
+    },
+    {
         name: "Larry Ellison",
-        netWorth: 249000000000, // $249 billion
+        netWorthBillions: 261,
         source: "Oracle"
     },
     {
-        id: 4,
         name: "Jeff Bezos",
-        netWorth: 243000000000, // $243 billion
+        netWorthBillions: 255,
         source: "Amazon"
-    },
-    {
-        id: 5,
-        name: "Sergey Brin",
-        netWorth: 237000000000, // $237 billion
-        source: "Google"
     }
 ];
 
-const MEDIAN_AMERICAN_NET_WORTH = 193000; // $193,000 (as of December 2025)
+const MEDIAN_AMERICAN_NET_WORTH = 193000; // $193,000 (as of June 2026)
 
 export default {
     async fetch(request, env, ctx) {
@@ -66,10 +63,13 @@ export default {
         }
 
         if (url.pathname === '/api/billionaires') {
+            const billionaires = [...BILLIONAIRE_DATA]
+                .sort((a, b) => b.netWorthBillions - a.netWorthBillions)
+                .map(({ netWorthBillions, ...b }) => ({ ...b, netWorth: netWorthBillions * BILLION }));
             return new Response(JSON.stringify({
-                billionaires: BILLIONAIRE_DATA,
+                billionaires,
                 medianAmericanNetWorth: MEDIAN_AMERICAN_NET_WORTH,
-                lastUpdated: "2025-12-27"
+                lastUpdated: "2026-06-08"
             }), {
                 headers: corsHeaders
             });
