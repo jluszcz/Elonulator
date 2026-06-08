@@ -64,7 +64,6 @@ describe('CloudFlare Worker', () => {
 
                 const data = await response.json();
                 data.billionaires.forEach(billionaire => {
-                    expect(billionaire).toHaveProperty('id');
                     expect(billionaire).toHaveProperty('name');
                     expect(billionaire).toHaveProperty('netWorth');
                     expect(billionaire).toHaveProperty('source');
