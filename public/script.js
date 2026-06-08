@@ -286,16 +286,20 @@ const MOON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
 const themeBtn = document.getElementById('theme-btn');
 const storedTheme = () => localStorage.getItem('theme');
 const systemDark = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
-const getTheme = () => { const s = storedTheme(); return (s === 'light' || s === 'dark') ? s : (systemDark() ? 'dark' : 'light'); };
+const getTheme = () => {
+    const s = storedTheme();
+    if (s === 'light' || s === 'dark') return s;
+    return systemDark() ? 'dark' : 'light';
+};
 
-const applyTheme = (theme) => {
+const applyTheme = (theme, persist = false) => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem('theme', theme);
+    if (persist) localStorage.setItem('theme', theme);
     themeBtn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
     themeBtn.innerHTML = theme === 'dark' ? SUN_SVG : MOON_SVG;
 };
 
-themeBtn.addEventListener('click', () => applyTheme(getTheme() === 'dark' ? 'light' : 'dark'));
+themeBtn.addEventListener('click', () => applyTheme(getTheme() === 'dark' ? 'light' : 'dark', true));
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
     if (!storedTheme()) applyTheme(e.matches ? 'dark' : 'light');
 });
