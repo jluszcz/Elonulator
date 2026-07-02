@@ -1,8 +1,13 @@
-// Static billionaire data (as of June 2026)
+// Static billionaire data
 // This data can be updated manually or could be fetched from an API in the future
 // Source: https://www.forbes.com/real-time-billionaires/
 // Net worths are entered in billions of dollars for easy data entry.
 const BILLION = 1000000000;
+
+// Update whenever BILLIONAIRE_DATA or MEDIAN_AMERICAN_NET_WORTH changes;
+// returned as `lastUpdated` by the /api/billionaires endpoint.
+const DATA_AS_OF = "2026-06-08";
+
 const BILLIONAIRE_DATA = [
     {
         name: "Elon Musk",
@@ -31,7 +36,16 @@ const BILLIONAIRE_DATA = [
     }
 ];
 
-const MEDIAN_AMERICAN_NET_WORTH = 193000; // $193,000 (as of June 2026)
+const MEDIAN_AMERICAN_NET_WORTH = 193000; // $193,000
+
+// The data is static per deployment, so the response body is built once at startup
+const BILLIONAIRES_RESPONSE_BODY = JSON.stringify({
+    billionaires: [...BILLIONAIRE_DATA]
+        .sort((a, b) => b.netWorthBillions - a.netWorthBillions)
+        .map(({ netWorthBillions, ...b }) => ({ ...b, netWorth: netWorthBillions * BILLION })),
+    medianAmericanNetWorth: MEDIAN_AMERICAN_NET_WORTH,
+    lastUpdated: DATA_AS_OF
+});
 
 export default {
     async fetch(request, env, ctx) {
@@ -49,29 +63,38 @@ export default {
     async handleApiRequest(request, env, url) {
         // Enable CORS for API requests
         const corsHeaders = {
-            'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type',
+        };
+        const jsonHeaders = {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
         };
 
         // Handle OPTIONS preflight requests
         if (request.method === 'OPTIONS') {
             return new Response(null, {
+                status: 204,
                 headers: corsHeaders
             });
         }
 
-        if (url.pathname === '/api/billionaires') {
-            const billionaires = [...BILLIONAIRE_DATA]
-                .sort((a, b) => b.netWorthBillions - a.netWorthBillions)
-                .map(({ netWorthBillions, ...b }) => ({ ...b, netWorth: netWorthBillions * BILLION }));
+        if (request.method !== 'GET') {
             return new Response(JSON.stringify({
-                billionaires,
-                medianAmericanNetWorth: MEDIAN_AMERICAN_NET_WORTH,
-                lastUpdated: "2026-06-08"
+                error: 'Method not allowed'
             }), {
-                headers: corsHeaders
+                status: 405,
+                headers: { ...jsonHeaders, 'Allow': 'GET, OPTIONS' }
+            });
+        }
+
+        if (url.pathname === '/api/billionaires') {
+            return new Response(BILLIONAIRES_RESPONSE_BODY, {
+                headers: {
+                    ...jsonHeaders,
+                    'Cache-Control': 'public, max-age=3600'
+                }
             });
         }
 
@@ -80,7 +103,7 @@ export default {
             error: 'Unknown API endpoint'
         }), {
             status: 404,
-            headers: corsHeaders
+            headers: jsonHeaders
         });
     }
 };

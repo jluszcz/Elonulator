@@ -1,6 +1,6 @@
 /**
  * Calculation utility functions for the Elonulator application
- * Note: Formatting functions are in public/utils.js
+ * Note: Formatting functions are in utils.js
  */
 
 /**

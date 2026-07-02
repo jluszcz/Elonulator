@@ -43,7 +43,7 @@
 
             <div class="calculator-section">
                 <h2>Wealth Perspective Calculator</h2>
-                <p class="description">
+                <p class="description" id="calculator-description">
                     Enter an amount the billionaire might spend, and see what that amount
                     would be equivalent to for the median American.
                 </p>
@@ -73,11 +73,11 @@
                 </div>
             </div>
 
-            <div id="loading" class="loading" style="display: none;">
+            <div id="loading" class="loading" style="display: none;" role="status">
                 <p>Loading billionaire data...</p>
             </div>
 
-            <div id="error" class="error" style="display: none;">
+            <div id="error" class="error" style="display: none;" role="alert">
                 <p id="error-message"></p>
             </div>
         </main>

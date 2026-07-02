@@ -4,15 +4,16 @@ import { describe, test, expect } from 'vitest';
 import {
     formatCurrency,
     formatNumber,
-    formatNumberWithCommas
+    formatNumberWithCommas,
+    addThousandsSeparators
 } from '../../public/utils.js';
 
-// Import calculation functions from src/utils.js
+// Import calculation functions from public/calc.js
 import {
     calculateMedianEquivalent,
     calculateBillionaireEquivalent,
     calculatePercentageOfWealth
-} from '../utils.js';
+} from '../../public/calc.js';
 
 describe('formatCurrency', () => {
     test('formats billions correctly', () => {
@@ -107,6 +108,27 @@ describe('formatNumberWithCommas', () => {
         expect(formatNumberWithCommas(0.1)).toBe('0');
         expect(formatNumberWithCommas(0.9)).toBe('1');
         expect(formatNumberWithCommas(0.5)).toBe('1');
+    });
+});
+
+describe('addThousandsSeparators', () => {
+    test('inserts commas into integer strings', () => {
+        expect(addThousandsSeparators('1234567')).toBe('1,234,567');
+        expect(addThousandsSeparators('193000')).toBe('193,000');
+        expect(addThousandsSeparators('999')).toBe('999');
+    });
+
+    test('preserves decimal portion as typed', () => {
+        expect(addThousandsSeparators('1234.5')).toBe('1,234.5');
+        expect(addThousandsSeparators('1234.56')).toBe('1,234.56');
+    });
+
+    test('preserves a trailing decimal point while typing', () => {
+        expect(addThousandsSeparators('1000.')).toBe('1,000.');
+    });
+
+    test('handles empty string', () => {
+        expect(addThousandsSeparators('')).toBe('');
     });
 });
 

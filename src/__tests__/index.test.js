@@ -99,6 +99,13 @@ describe('CloudFlare Worker', () => {
                 expect(response.headers.get('Content-Type')).toBe('application/json');
                 expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
             });
+
+            test('includes cache header so responses can be cached at the edge', async () => {
+                const request = new Request('https://example.com/api/billionaires');
+                const response = await worker.fetch(request, mockEnv, mockCtx);
+
+                expect(response.headers.get('Cache-Control')).toBe('public, max-age=3600');
+            });
         });
 
         describe('OPTIONS /api/billionaires', () => {
@@ -108,9 +115,24 @@ describe('CloudFlare Worker', () => {
                 });
                 const response = await worker.fetch(request, mockEnv, mockCtx);
 
-                expect(response.status).toBe(200);
+                expect(response.status).toBe(204);
                 expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
                 expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET, OPTIONS');
+            });
+        });
+
+        describe('Unsupported methods', () => {
+            test('returns 405 for non-GET requests to API endpoints', async () => {
+                const request = new Request('https://example.com/api/billionaires', {
+                    method: 'POST'
+                });
+                const response = await worker.fetch(request, mockEnv, mockCtx);
+
+                expect(response.status).toBe(405);
+                expect(response.headers.get('Allow')).toBe('GET, OPTIONS');
+
+                const data = await response.json();
+                expect(data.error).toBe('Method not allowed');
             });
         });
 

@@ -1,5 +1,6 @@
 // Import shared utility functions
-import { formatCurrency, formatNumber, formatNumberWithCommas } from './utils.js';
+import { formatCurrency, formatNumber, formatNumberWithCommas, addThousandsSeparators } from './utils.js';
+import { calculateMedianEquivalent, calculateBillionaireEquivalent, calculatePercentageOfWealth } from './calc.js';
 
 // Utility: Debounce function to limit calculation frequency
 function debounce(func, wait) {
@@ -27,6 +28,7 @@ const medianNetWorthInput = document.getElementById('median-net-worth');
 const billionaireAmountInput = document.getElementById('billionaire-amount');
 const medianAmericanAmountInput = document.getElementById('median-american-amount');
 const swapDirectionBtn = document.getElementById('swap-direction');
+const descriptionEl = document.getElementById('calculator-description');
 const comparisonTextEl = document.getElementById('comparison-text');
 const comparisonMessageEl = document.getElementById('comparison-message');
 const lastUpdatedEl = document.getElementById('last-updated');
@@ -93,6 +95,8 @@ function handleBillionaireSelection() {
     if (selectedIndex === '') {
         selectedBillionaire = null;
         billionaireNetWorthInput.value = '';
+        billionaireAmountInput.value = '';
+        medianAmericanAmountInput.value = '';
         comparisonTextEl.style.display = 'none';
         return;
     }
@@ -116,9 +120,13 @@ function swapDirection() {
     if (calculationDirection === 'billionaire-to-median') {
         billionaireAmountInput.removeAttribute('readonly');
         medianAmericanAmountInput.setAttribute('readonly', 'readonly');
+        descriptionEl.textContent = 'Enter an amount the billionaire might spend, and see what that '
+            + 'amount would be equivalent to for the median American.';
     } else {
         billionaireAmountInput.setAttribute('readonly', 'readonly');
         medianAmericanAmountInput.removeAttribute('readonly');
+        descriptionEl.textContent = 'Enter an amount the median American might spend, and see what that '
+            + 'amount would be equivalent to for the billionaire.';
     }
 
     // Recalculate
@@ -138,7 +146,8 @@ function calculateEquivalent() {
     const billionaireNetWorth = parseFloat(billionaireNetWorthInput.value.replace(/[^0-9.]/g, ''));
     const currentMedianNetWorth = parseFloat(medianNetWorthInput.value.replace(/[^0-9.]/g, ''));
 
-    if (isNaN(billionaireNetWorth) || isNaN(currentMedianNetWorth)) {
+    if (isNaN(billionaireNetWorth) || billionaireNetWorth <= 0 ||
+        isNaN(currentMedianNetWorth) || currentMedianNetWorth <= 0) {
         comparisonTextEl.style.display = 'none';
         return;
     }
@@ -154,8 +163,7 @@ function calculateEquivalent() {
             return;
         }
 
-        const ratio = billionaireAmount / billionaireNetWorth;
-        const equivalentAmount = ratio * currentMedianNetWorth;
+        const equivalentAmount = calculateMedianEquivalent(billionaireAmount, billionaireNetWorth, currentMedianNetWorth);
 
         medianAmericanAmountInput.value = formatNumber(equivalentAmount);
         updateComparisonText(billionaireAmount, equivalentAmount, billionaireNetWorth, currentMedianNetWorth);
@@ -170,8 +178,7 @@ function calculateEquivalent() {
             return;
         }
 
-        const ratio = medianAmount / currentMedianNetWorth;
-        const equivalentAmount = ratio * billionaireNetWorth;
+        const equivalentAmount = calculateBillionaireEquivalent(medianAmount, currentMedianNetWorth, billionaireNetWorth);
 
         billionaireAmountInput.value = formatNumber(equivalentAmount);
         updateComparisonText(equivalentAmount, medianAmount, billionaireNetWorth, currentMedianNetWorth);
@@ -184,13 +191,13 @@ const debouncedCalculateEquivalent = debounce(calculateEquivalent, 200);
 // Update the comparison text with context
 function updateComparisonText(billionaireAmount, medianAmount, billionaireNetWorth, currentMedianNetWorth) {
     if (calculationDirection === 'billionaire-to-median') {
-        const percentageOfWealth = (billionaireAmount / billionaireNetWorth * 100).toFixed(1);
+        const percentageOfWealth = calculatePercentageOfWealth(billionaireAmount, billionaireNetWorth);
         let message = `${selectedBillionaire.name} spending ${formatCurrency(billionaireAmount)} `;
         message += `(${percentageOfWealth}% of their wealth) is like `;
         message += `the median American spending ${formatCurrency(medianAmount)}.`;
         comparisonMessageEl.textContent = message;
     } else {
-        const percentageOfWealth = (medianAmount / currentMedianNetWorth * 100).toFixed(1);
+        const percentageOfWealth = calculatePercentageOfWealth(medianAmount, currentMedianNetWorth);
         let message = `The median American spending ${formatCurrency(medianAmount)} `;
         message += `(${percentageOfWealth}% of their wealth) is like `;
         message += `${selectedBillionaire.name} spending ${formatCurrency(billionaireAmount)}.`;
@@ -209,16 +216,7 @@ function formatInputWithCommas(inputElement) {
     const oldLength = oldValue.length;
 
     const cleanValue = oldValue.replace(/[^0-9.]/g, '');
-    const parts = cleanValue.split('.');
-    let integerPart = parts[0];
-    const decimalPart = parts[1];
-
-    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-
-    let formattedValue = integerPart;
-    if (parts.length > 1) {
-        formattedValue += '.' + (decimalPart || '');
-    }
+    const formattedValue = addThousandsSeparators(cleanValue);
 
     inputElement.value = formattedValue;
 
@@ -245,23 +243,16 @@ function formatNetWorthInputs() {
     // Format billionaire net worth
     const billionaireValue = billionaireNetWorthInput.value.replace(/[^0-9.]/g, '');
     if (billionaireValue) {
-        const parts = billionaireValue.split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        billionaireNetWorthInput.value = parts.join('.');
+        billionaireNetWorthInput.value = addThousandsSeparators(billionaireValue);
     }
 
     // Format median net worth
     const medianValue = medianNetWorthInput.value.replace(/[^0-9.]/g, '');
     if (medianValue) {
-        const parts = medianValue.split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        medianNetWorthInput.value = parts.join('.');
+        medianNetWorthInput.value = addThousandsSeparators(medianValue);
     }
 
-    // Recalculate if there's an amount
-    if (billionaireAmountInput.value) {
-        debouncedCalculateEquivalent();
-    }
+    debouncedCalculateEquivalent();
 }
 
 // Event listeners
@@ -295,7 +286,9 @@ const getTheme = () => {
 const applyTheme = (theme, persist = false) => {
     document.documentElement.dataset.theme = theme;
     if (persist) localStorage.setItem('theme', theme);
-    themeBtn.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    const label = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+    themeBtn.title = label;
+    themeBtn.setAttribute('aria-label', label);
     themeBtn.innerHTML = theme === 'dark' ? SUN_SVG : MOON_SVG;
 };
 
