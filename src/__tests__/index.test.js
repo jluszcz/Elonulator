@@ -3,9 +3,7 @@
  */
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 
-// Mock the worker module
-const workerModule = await import('../index.js');
-const worker = workerModule.default;
+import worker from '../index.js';
 
 describe('CloudFlare Worker', () => {
     let mockEnv;
@@ -99,6 +97,37 @@ describe('CloudFlare Worker', () => {
                 expect(response.headers.get('Content-Type')).toBe('application/json');
                 expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
             });
+
+            test('includes cache header so responses can be cached at the edge', async () => {
+                const request = new Request('https://example.com/api/billionaires');
+                const response = await worker.fetch(request, mockEnv, mockCtx);
+
+                expect(response.headers.get('Cache-Control')).toBe('public, max-age=3600');
+            });
+        });
+
+        describe('HEAD /api/billionaires', () => {
+            test('returns same status and headers as GET with no body', async () => {
+                const request = new Request('https://example.com/api/billionaires', {
+                    method: 'HEAD'
+                });
+                const response = await worker.fetch(request, mockEnv, mockCtx);
+
+                expect(response.status).toBe(200);
+                expect(response.headers.get('Content-Type')).toBe('application/json');
+                expect(response.headers.get('Cache-Control')).toBe('public, max-age=3600');
+                expect(await response.text()).toBe('');
+            });
+
+            test('returns 404 with no body for unknown API paths', async () => {
+                const request = new Request('https://example.com/api/unknown', {
+                    method: 'HEAD'
+                });
+                const response = await worker.fetch(request, mockEnv, mockCtx);
+
+                expect(response.status).toBe(404);
+                expect(await response.text()).toBe('');
+            });
         });
 
         describe('OPTIONS /api/billionaires', () => {
@@ -108,9 +137,37 @@ describe('CloudFlare Worker', () => {
                 });
                 const response = await worker.fetch(request, mockEnv, mockCtx);
 
-                expect(response.status).toBe(200);
+                expect(response.status).toBe(204);
                 expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
-                expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET, OPTIONS');
+                expect(response.headers.get('Access-Control-Allow-Methods')).toBe('GET, HEAD, OPTIONS');
+                expect(response.headers.get('Access-Control-Max-Age')).toBe('86400');
+            });
+        });
+
+        describe('Unsupported methods', () => {
+            test('returns 405 for non-GET requests to API endpoints', async () => {
+                const request = new Request('https://example.com/api/billionaires', {
+                    method: 'POST'
+                });
+                const response = await worker.fetch(request, mockEnv, mockCtx);
+
+                expect(response.status).toBe(405);
+                expect(response.headers.get('Allow')).toBe('GET, HEAD, OPTIONS');
+
+                const data = await response.json();
+                expect(data.error).toBe('Method not allowed');
+            });
+
+            test('returns 404 for unsupported methods on unknown API paths', async () => {
+                const request = new Request('https://example.com/api/unknown', {
+                    method: 'POST'
+                });
+                const response = await worker.fetch(request, mockEnv, mockCtx);
+
+                expect(response.status).toBe(404);
+
+                const data = await response.json();
+                expect(data.error).toBe('Unknown API endpoint');
             });
         });
 

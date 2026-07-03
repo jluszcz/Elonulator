@@ -1,6 +1,6 @@
 /**
- * Shared utility functions for the Elonulator application
- * Used by both client-side and server-side code
+ * Formatting utility functions for the Elonulator application
+ * Note: Calculation functions are in calc.js
  */
 
 /**
@@ -45,4 +45,16 @@ export function formatNumberWithCommas(num) {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     }).format(num);
+}
+
+/**
+ * Insert commas as thousands separators into a numeric string, preserving
+ * any decimal portion as typed (e.g. "1234.5" -> "1,234.5", "1000." -> "1,000.")
+ * @param {string} value - Numeric string containing only digits and dots
+ * @returns {string} The value with commas inserted into the integer part
+ */
+export function addThousandsSeparators(value) {
+    const [integerPart, ...decimalParts] = value.split('.');
+    const withCommas = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return decimalParts.length === 0 ? withCommas : `${withCommas}.${decimalParts.join('.')}`;
 }

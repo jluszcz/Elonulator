@@ -6,11 +6,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: [
-        'src/**/*.js'
+        'src/**/*.js',
+        'public/**/*.js'
       ],
       exclude: [
         'src/__tests__/**',
-        'src/index.js' // CloudFlare Worker - tested differently
+        'public/script.js' // Browser entry point - smoke-tested in script.test.js, but DOM wiring is excluded from coverage metrics
       ],
       thresholds: {
         branches: 80,

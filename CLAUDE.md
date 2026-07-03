@@ -18,7 +18,5 @@ Billionaire net worths and the median American net worth are hardcoded in `src/i
 dollars and expanded to absolute dollars when the API responds. The list is sorted by net worth
 when served, so source order does not matter.
 
-**When you update any of this source data, also update:**
-
-- the `lastUpdated` date returned by the `/api/billionaires` handler in `src/index.js`
-- the "as of <month year>" comments next to the data in `src/index.js`
+**When you update any of this source data, also update the `DATA_AS_OF` constant in
+`src/index.js`** — it is returned as `lastUpdated` by the `/api/billionaires` handler.
