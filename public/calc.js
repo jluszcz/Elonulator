@@ -16,8 +16,11 @@ export function calculateMedianEquivalent(billionaireAmount, billionaireNetWorth
         medianNetWorth === null || medianNetWorth === undefined) {
         throw new Error('All parameters are required');
     }
-    if (billionaireAmount < 0 || billionaireNetWorth <= 0 || medianNetWorth <= 0) {
-        throw new Error('All values must be positive');
+    if (billionaireAmount < 0) {
+        throw new Error('Amount must be non-negative');
+    }
+    if (billionaireNetWorth <= 0 || medianNetWorth <= 0) {
+        throw new Error('Net worths must be positive');
     }
 
     const ratio = billionaireAmount / billionaireNetWorth;
@@ -37,8 +40,11 @@ export function calculateBillionaireEquivalent(medianAmount, medianNetWorth, bil
         billionaireNetWorth === null || billionaireNetWorth === undefined) {
         throw new Error('All parameters are required');
     }
-    if (medianAmount < 0 || medianNetWorth <= 0 || billionaireNetWorth <= 0) {
-        throw new Error('All values must be positive');
+    if (medianAmount < 0) {
+        throw new Error('Amount must be non-negative');
+    }
+    if (medianNetWorth <= 0 || billionaireNetWorth <= 0) {
+        throw new Error('Net worths must be positive');
     }
 
     const ratio = medianAmount / medianNetWorth;

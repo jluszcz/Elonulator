@@ -77,8 +77,8 @@ async function loadBillionaireData() {
             billionaireSelect.appendChild(option);
         });
 
-        // Auto-select Elon Musk (first in list)
-        billionaireSelect.value = 0;
+        // Auto-select Elon Musk (first in list); option values are strings
+        billionaireSelect.value = '0';
         handleBillionaireSelection();
 
         loadingEl.style.display = 'none';
@@ -104,10 +104,8 @@ function handleBillionaireSelection() {
     selectedBillionaire = billionairesData[selectedIndex];
     billionaireNetWorthInput.value = formatNumberWithCommas(selectedBillionaire.netWorth);
 
-    // Recalculate if there's already an amount entered
-    if (billionaireAmountInput.value) {
-        calculateEquivalent();
-    }
+    // calculateEquivalent handles empty inputs, so recalculate unconditionally
+    calculateEquivalent();
 }
 
 // Swap calculation direction
@@ -136,8 +134,8 @@ function swapDirection() {
 // Calculate the equivalent amount based on direction
 function calculateEquivalent() {
     if (!selectedBillionaire) {
-        billionaireAmountInput.value = '';
-        medianAmericanAmountInput.value = '';
+        // Deselection already cleared the amount fields; don't wipe anything
+        // the user has typed since then
         comparisonTextEl.style.display = 'none';
         return;
     }
@@ -148,6 +146,12 @@ function calculateEquivalent() {
 
     if (isNaN(billionaireNetWorth) || billionaireNetWorth <= 0 ||
         isNaN(currentMedianNetWorth) || currentMedianNetWorth <= 0) {
+        // Clear the computed output so a stale equivalent doesn't linger
+        if (calculationDirection === 'billionaire-to-median') {
+            medianAmericanAmountInput.value = '';
+        } else {
+            billionaireAmountInput.value = '';
+        }
         comparisonTextEl.style.display = 'none';
         return;
     }

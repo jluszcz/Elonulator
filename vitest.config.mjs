@@ -11,7 +11,7 @@ export default defineConfig({
       ],
       exclude: [
         'src/__tests__/**',
-        'public/script.js' // Browser entry point - DOM wiring only; calculation logic lives in calc.js
+        'public/script.js' // Browser entry point - smoke-tested in script.test.js, but DOM wiring is excluded from coverage metrics
       ],
       thresholds: {
         branches: 80,

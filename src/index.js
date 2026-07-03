@@ -60,11 +60,11 @@ export default {
         return env.ASSETS.fetch(request);
     },
 
-    async handleApiRequest(request, env, url) {
+    handleApiRequest(request, env, url) {
         // Enable CORS for API requests
         const corsHeaders = {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, OPTIONS',
+            'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type',
         };
         const jsonHeaders = {
@@ -76,34 +76,41 @@ export default {
         if (request.method === 'OPTIONS') {
             return new Response(null, {
                 status: 204,
-                headers: corsHeaders
-            });
-        }
-
-        if (request.method !== 'GET') {
-            return new Response(JSON.stringify({
-                error: 'Method not allowed'
-            }), {
-                status: 405,
-                headers: { ...jsonHeaders, 'Allow': 'GET, OPTIONS' }
-            });
-        }
-
-        if (url.pathname === '/api/billionaires') {
-            return new Response(BILLIONAIRES_RESPONSE_BODY, {
                 headers: {
-                    ...jsonHeaders,
-                    'Cache-Control': 'public, max-age=3600'
+                    ...corsHeaders,
+                    'Access-Control-Max-Age': '86400'
                 }
             });
         }
 
-        // Unknown API endpoint
-        return new Response(JSON.stringify({
-            error: 'Unknown API endpoint'
-        }), {
-            status: 404,
-            headers: jsonHeaders
+        // HEAD responses carry the same headers as GET but no body
+        const isHead = request.method === 'HEAD';
+
+        // Unknown API endpoint: 404 regardless of method, since 405 implies
+        // the target resource exists
+        if (url.pathname !== '/api/billionaires') {
+            return new Response(isHead ? null : JSON.stringify({
+                error: 'Unknown API endpoint'
+            }), {
+                status: 404,
+                headers: jsonHeaders
+            });
+        }
+
+        if (request.method !== 'GET' && request.method !== 'HEAD') {
+            return new Response(JSON.stringify({
+                error: 'Method not allowed'
+            }), {
+                status: 405,
+                headers: { ...jsonHeaders, 'Allow': 'GET, HEAD, OPTIONS' }
+            });
+        }
+
+        return new Response(isHead ? null : BILLIONAIRES_RESPONSE_BODY, {
+            headers: {
+                ...jsonHeaders,
+                'Cache-Control': 'public, max-age=3600'
+            }
         });
     }
 };
