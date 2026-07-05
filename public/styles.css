@@ -294,6 +294,46 @@ header {
     color: var(--text);
 }
 
+.clear-input {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.clear-input:hover {
+    color: var(--text);
+}
+
+.clear-input:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    color: var(--text);
+}
+
+.clear-input[hidden] {
+    display: none;
+}
+
+/* Leave room for the clear button so typed text doesn't slide under it */
+.input-wrapper:has(.clear-input) input {
+    padding-right: 40px;
+}
+
 .comparison-text {
     margin-top: 20px;
     padding: 15px;

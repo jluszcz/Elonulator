@@ -36,6 +36,8 @@ const medianNetWorthInput = document.getElementById('median-net-worth');
 const billionaireAmountInput = document.getElementById('billionaire-amount');
 const medianAmericanAmountInput = document.getElementById('median-american-amount');
 const swapDirectionBtn = document.getElementById('swap-direction');
+const clearBillionaireAmountBtn = document.getElementById('clear-billionaire-amount');
+const clearMedianAmountBtn = document.getElementById('clear-median-american-amount');
 const medianNetWorthLabel = document.getElementById('median-net-worth-label');
 const medianAmountLabel = document.getElementById('median-amount-label');
 const billionaireAmountLabel = document.getElementById('billionaire-amount-label');
@@ -172,6 +174,7 @@ function handleBillionaireSelection() {
         medianAmericanAmountInput.value = '';
         comparisonTextEl.style.display = 'none';
         updateLabels();
+        updateClearButtons();
         return;
     }
 
@@ -187,6 +190,7 @@ function handleBillionaireSelection() {
 
     // calculateEquivalent handles empty inputs, so recalculate unconditionally
     calculateEquivalent();
+    updateClearButtons();
 }
 
 // Swap calculation direction
@@ -206,6 +210,32 @@ function swapDirection() {
 
     // Recalculate
     calculateEquivalent();
+    updateClearButtons();
+}
+
+// Clear the calculator amounts and hide the comparison, leaving the selected
+// billionaire and net worths untouched
+function clearCalculator() {
+    billionaireAmountInput.value = '';
+    medianAmericanAmountInput.value = '';
+    comparisonTextEl.style.display = 'none';
+    updateClearButtons();
+
+    // Return focus to the editable input so keyboard users aren't dropped to
+    // the top of the page when the clicked clear button hides itself
+    const editableInput = billionaireAmountInput.hasAttribute('readonly')
+        ? medianAmericanAmountInput
+        : billionaireAmountInput;
+    editableInput.focus();
+}
+
+// Show a field's clear button only when it is the editable input and holds a
+// value; the readonly (computed) field never offers one
+function updateClearButtons() {
+    clearBillionaireAmountBtn.hidden =
+        billionaireAmountInput.hasAttribute('readonly') || billionaireAmountInput.value === '';
+    clearMedianAmountBtn.hidden =
+        medianAmericanAmountInput.hasAttribute('readonly') || medianAmericanAmountInput.value === '';
 }
 
 // Calculate the equivalent amount based on direction
@@ -316,6 +346,7 @@ function formatInputWithCommas(inputElement) {
     const newCursorPosition = cursorPosition + lengthDiff;
     inputElement.setSelectionRange(newCursorPosition, newCursorPosition);
 
+    updateClearButtons();
     debouncedCalculateEquivalent();
 }
 
@@ -368,6 +399,8 @@ medianAmericanAmountInput.addEventListener('input', formatMedianAmountInput);
 billionaireNetWorthInput.addEventListener('input', formatNetWorthInputs);
 medianNetWorthInput.addEventListener('input', formatNetWorthInputs);
 swapDirectionBtn.addEventListener('click', swapDirection);
+clearBillionaireAmountBtn.addEventListener('click', clearCalculator);
+clearMedianAmountBtn.addEventListener('click', clearCalculator);
 
 // Initialize readonly state (CSS handles styling via input[readonly] selector)
 medianAmericanAmountInput.setAttribute('readonly', 'readonly');
