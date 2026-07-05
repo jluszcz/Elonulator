@@ -8,6 +8,8 @@ API at `/api/billionaires`.
 
 - `npm run dev` — run the Worker locally with `wrangler dev`
 - `npm test` — run the test suite with coverage (`vitest run --coverage`)
+- `npm run lint` — lint with ESLint
+- `npm run format` — format with Prettier (`format:check` to check only; CI runs both checks)
 - `npm run build` — no-op build step; static assets are served as-is
 - `npm run deploy` — deploy the Worker with `wrangler deploy`
 

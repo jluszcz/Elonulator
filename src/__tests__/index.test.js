@@ -12,8 +12,8 @@ describe('CloudFlare Worker', () => {
     beforeEach(() => {
         mockEnv = {
             ASSETS: {
-                fetch: vi.fn().mockResolvedValue(new Response('mock asset'))
-            }
+                fetch: vi.fn().mockResolvedValue(new Response('mock asset')),
+            },
         };
         mockCtx = {};
     });
@@ -21,7 +21,7 @@ describe('CloudFlare Worker', () => {
     describe('Static Asset Serving', () => {
         test('serves static assets for non-API routes', async () => {
             const request = new Request('https://example.com/index.html');
-            const response = await worker.fetch(request, mockEnv, mockCtx);
+            await worker.fetch(request, mockEnv, mockCtx);
 
             expect(mockEnv.ASSETS.fetch).toHaveBeenCalledWith(request);
         });
@@ -61,7 +61,7 @@ describe('CloudFlare Worker', () => {
                 const response = await worker.fetch(request, mockEnv, mockCtx);
 
                 const data = await response.json();
-                data.billionaires.forEach(billionaire => {
+                data.billionaires.forEach((billionaire) => {
                     expect(billionaire).toHaveProperty('name');
                     expect(billionaire).toHaveProperty('netWorth');
                     expect(billionaire).toHaveProperty('source');
@@ -75,7 +75,7 @@ describe('CloudFlare Worker', () => {
                 const response = await worker.fetch(request, mockEnv, mockCtx);
 
                 const data = await response.json();
-                const netWorths = data.billionaires.map(b => b.netWorth);
+                const netWorths = data.billionaires.map((b) => b.netWorth);
                 const sortedNetWorths = [...netWorths].sort((a, b) => b - a);
 
                 expect(netWorths).toEqual(sortedNetWorths);
@@ -109,7 +109,7 @@ describe('CloudFlare Worker', () => {
         describe('HEAD /api/billionaires', () => {
             test('returns same status and headers as GET with no body', async () => {
                 const request = new Request('https://example.com/api/billionaires', {
-                    method: 'HEAD'
+                    method: 'HEAD',
                 });
                 const response = await worker.fetch(request, mockEnv, mockCtx);
 
@@ -121,7 +121,7 @@ describe('CloudFlare Worker', () => {
 
             test('returns 404 with no body for unknown API paths', async () => {
                 const request = new Request('https://example.com/api/unknown', {
-                    method: 'HEAD'
+                    method: 'HEAD',
                 });
                 const response = await worker.fetch(request, mockEnv, mockCtx);
 
@@ -133,7 +133,7 @@ describe('CloudFlare Worker', () => {
         describe('OPTIONS /api/billionaires', () => {
             test('handles CORS preflight requests', async () => {
                 const request = new Request('https://example.com/api/billionaires', {
-                    method: 'OPTIONS'
+                    method: 'OPTIONS',
                 });
                 const response = await worker.fetch(request, mockEnv, mockCtx);
 
@@ -147,7 +147,7 @@ describe('CloudFlare Worker', () => {
         describe('Unsupported methods', () => {
             test('returns 405 for non-GET requests to API endpoints', async () => {
                 const request = new Request('https://example.com/api/billionaires', {
-                    method: 'POST'
+                    method: 'POST',
                 });
                 const response = await worker.fetch(request, mockEnv, mockCtx);
 
@@ -160,7 +160,7 @@ describe('CloudFlare Worker', () => {
 
             test('returns 404 for unsupported methods on unknown API paths', async () => {
                 const request = new Request('https://example.com/api/unknown', {
-                    method: 'POST'
+                    method: 'POST',
                 });
                 const response = await worker.fetch(request, mockEnv, mockCtx);
 
@@ -201,7 +201,7 @@ describe('CloudFlare Worker', () => {
             const data = await response.json();
 
             // All billionaires should have net worth > $100 billion
-            data.billionaires.forEach(billionaire => {
+            data.billionaires.forEach((billionaire) => {
                 expect(billionaire.netWorth).toBeGreaterThan(100000000000);
             });
 

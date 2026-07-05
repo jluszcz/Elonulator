@@ -31,7 +31,7 @@ export function formatCurrency(amount) {
 export function formatNumber(num) {
     return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        maximumFractionDigits: 2,
     }).format(num);
 }
 
@@ -43,7 +43,7 @@ export function formatNumber(num) {
 export function formatNumberWithCommas(num) {
     return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0,
-        maximumFractionDigits: 0
+        maximumFractionDigits: 0,
     }).format(num);
 }
 
