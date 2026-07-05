@@ -10,18 +10,24 @@ import { describe, test, expect, beforeAll, vi } from 'vitest';
 const API_DATA = {
     billionaires: [
         { name: 'Test Billionaire', netWorth: 1000000000, source: 'Testing' },
-        { name: 'Second Billionaire', netWorth: 500000000, source: 'Also Testing' }
+        // Written as the API computes it (billions * 1e9); 4.1 * 1e9 is a
+        // non-integer double, which pins the display-string comparison in
+        // formatNetWorthInputs
+        { name: 'Second Billionaire', netWorth: 4.1 * 1000000000, source: 'Also Testing' },
     ],
     medianAmericanNetWorth: 100000,
-    lastUpdated: '2026-01-01'
+    lastUpdated: '2026-01-01',
 };
 
 // Minimal markup with the elements script.js wires up on import
 const PAGE_HTML = `
     <select id="billionaire-select"></select>
     <input id="billionaire-net-worth">
+    <label id="median-net-worth-label">Median American Net Worth</label>
     <input id="median-net-worth">
+    <label id="billionaire-amount-label">Amount for Billionaire</label>
     <input id="billionaire-amount">
+    <label id="median-amount-label">Equivalent for Median American</label>
     <input id="median-american-amount">
     <button id="swap-direction"></button>
     <p id="calculator-description"></p>
@@ -46,22 +52,40 @@ function recalculate() {
     select.dispatchEvent(new Event('change'));
 }
 
+function typeInto(input, value) {
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+}
+
+function flushDebounce() {
+    // Let the 200ms-debounced calculation from input events settle so it
+    // can't fire mid-way through a later test
+    return new Promise((resolve) => setTimeout(resolve, 250));
+}
+
+function labelText(id) {
+    return document.getElementById(id).textContent;
+}
+
 beforeAll(async () => {
     document.body.innerHTML = PAGE_HTML;
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => API_DATA
-    }));
+    vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => API_DATA,
+        }),
+    );
     // Node's experimental localStorage global shadows happy-dom's; the theme
     // toggle needs one that works
     vi.stubGlobal('localStorage', {
         getItem: vi.fn(() => null),
-        setItem: vi.fn()
+        setItem: vi.fn(),
     });
 
     await import('../../public/script.js');
     // Let the async data load settle
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     select = document.getElementById('billionaire-select');
     billionaireNetWorth = document.getElementById('billionaire-net-worth');
@@ -74,7 +98,7 @@ beforeAll(async () => {
 
 describe('page load', () => {
     test('populates the dropdown and auto-selects the first billionaire', () => {
-        expect(select.options).toHaveLength(3); // placeholder + 2 billionaires
+        expect(select.options).toHaveLength(4); // placeholder + 2 billionaires + Custom
         expect(select.value).toBe('0');
         expect(billionaireNetWorth.value).toBe('1,000,000,000');
         expect(medianNetWorth.value).toBe('100,000');
@@ -94,8 +118,8 @@ describe('billionaire-to-median calculation', () => {
         expect(medianAmount.value).toBe('10,000.00');
         expect(comparisonText.style.display).toBe('block');
         expect(comparisonMessage.textContent).toBe(
-            'Test Billionaire spending $100.00 million (10.0% of their wealth) '
-            + 'is like the median American spending $10.00 thousand.'
+            'Test Billionaire spending $100.00 million (10.0% of their wealth) ' +
+                'is like the median American spending $10.00 thousand.',
         );
     });
 
@@ -133,8 +157,8 @@ describe('median-to-billionaire calculation', () => {
         // 10k of a 100k net worth is 10%, so 10% of 1B = 100M
         expect(billionaireAmount.value).toBe('100,000,000.00');
         expect(comparisonMessage.textContent).toBe(
-            'The median American spending $10.00 thousand (10.0% of their wealth) '
-            + 'is like Test Billionaire spending $100.00 million.'
+            'The median American spending $10.00 thousand (10.0% of their wealth) ' +
+                'is like Test Billionaire spending $100.00 million.',
         );
     });
 });
@@ -148,5 +172,128 @@ describe('deselection', () => {
         expect(billionaireAmount.value).toBe('');
         expect(medianAmount.value).toBe('');
         expect(comparisonText.style.display).toBe('none');
+    });
+});
+
+describe('custom median net worth', () => {
+    test('relabels the median fields while customized and reverts when restored', async () => {
+        // Restore billionaire-to-median direction from the earlier swap test
+        document.getElementById('swap-direction').click();
+        select.value = '0';
+        recalculate();
+
+        typeInto(medianNetWorth, '200,000');
+
+        expect(labelText('median-net-worth-label')).toBe('Custom Net Worth');
+        expect(labelText('median-amount-label')).toBe('Equivalent for Custom Net Worth');
+
+        billionaireAmount.value = '100,000,000';
+        recalculate();
+
+        // 10% of the 200k custom net worth
+        expect(medianAmount.value).toBe('20,000.00');
+        expect(comparisonMessage.textContent).toBe(
+            'Test Billionaire spending $100.00 million (10.0% of their wealth) ' +
+                'is like someone with the custom net worth spending $20.00 thousand.',
+        );
+
+        typeInto(medianNetWorth, '100,000');
+
+        expect(labelText('median-net-worth-label')).toBe('Median American Net Worth');
+        expect(labelText('median-amount-label')).toBe('Equivalent for Median American');
+
+        await flushDebounce();
+    });
+});
+
+describe('custom billionaire net worth', () => {
+    test('switches the dropdown to Custom and relabels for a millionaire net worth', async () => {
+        select.value = '0';
+        recalculate();
+
+        typeInto(billionaireNetWorth, '500,000,000');
+
+        expect(select.value).toBe('custom');
+        expect(labelText('billionaire-amount-label')).toBe('Amount for Millionaire');
+
+        billionaireAmount.value = '100,000,000';
+        recalculate();
+
+        // 20% of the 500M custom net worth applied to the 100k median
+        expect(medianAmount.value).toBe('20,000.00');
+        expect(comparisonMessage.textContent).toBe(
+            'This millionaire spending $100.00 million (20.0% of their wealth) ' +
+                'is like the median American spending $20.00 thousand.',
+        );
+
+        await flushDebounce();
+    });
+
+    test('re-selecting a billionaire restores their net worth, name, and label', () => {
+        select.value = '0';
+        recalculate();
+
+        expect(billionaireNetWorth.value).toBe('1,000,000,000');
+        expect(labelText('billionaire-amount-label')).toBe('Amount for Billionaire');
+        expect(comparisonMessage.textContent).toContain('Test Billionaire');
+    });
+
+    test('typing a net worth with no billionaire selected switches to Custom and calculates', async () => {
+        select.value = '';
+        recalculate();
+
+        typeInto(billionaireNetWorth, '2,000,000,000');
+
+        expect(select.value).toBe('custom');
+        expect(labelText('billionaire-amount-label')).toBe('Amount for Billionaire');
+
+        billionaireAmount.value = '100,000,000';
+        recalculate();
+
+        // 5% of the 2B custom net worth applied to the 100k median
+        expect(medianAmount.value).toBe('5,000.00');
+        expect(comparisonMessage.textContent).toBe(
+            'This billionaire spending $100.00 million (5.0% of their wealth) ' +
+                'is like the median American spending $5.00 thousand.',
+        );
+
+        await flushDebounce();
+    });
+
+    test('describes custom subjects on both sides in the swapped direction', async () => {
+        select.value = '0';
+        recalculate();
+        typeInto(billionaireNetWorth, '500,000,000');
+        typeInto(medianNetWorth, '200,000');
+
+        document.getElementById('swap-direction').click();
+        medianAmount.value = '20,000';
+        recalculate();
+
+        // 10% of the 200k custom median applied to the 500M custom net worth
+        expect(billionaireAmount.value).toBe('50,000,000.00');
+        expect(comparisonMessage.textContent).toBe(
+            'Someone with the custom net worth spending $20.00 thousand (10.0% of their wealth) ' +
+                'is like this millionaire spending $50.00 million.',
+        );
+
+        // Restore direction and default median for later tests
+        document.getElementById('swap-direction').click();
+        typeInto(medianNetWorth, '100,000');
+        await flushDebounce();
+    });
+
+    test('typing in the median input keeps a fractional-net-worth billionaire selected', async () => {
+        select.value = '1';
+        recalculate();
+
+        expect(billionaireNetWorth.value).toBe('4,100,000,000');
+
+        typeInto(medianNetWorth, '100,000');
+
+        expect(select.value).toBe('1');
+        expect(comparisonMessage.textContent).toContain('Second Billionaire');
+
+        await flushDebounce();
     });
 });
