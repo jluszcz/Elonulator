@@ -3,7 +3,7 @@ import { describe, test, expect } from 'vitest';
 import {
     calculateMedianEquivalent,
     calculateBillionaireEquivalent,
-    calculatePercentageOfWealth
+    calculatePercentageOfWealth,
 } from '../../public/calc.js';
 
 describe('calculateMedianEquivalent', () => {
@@ -61,7 +61,9 @@ describe('calculateBillionaireEquivalent', () => {
     test('throws error for missing parameters', () => {
         expect(() => calculateBillionaireEquivalent(null, 1000, 1000)).toThrow('All parameters are required');
         expect(() => calculateBillionaireEquivalent(1000, null, 1000)).toThrow('All parameters are required');
-        expect(() => calculateBillionaireEquivalent(1000, 1000, undefined)).toThrow('All parameters are required');
+        expect(() => calculateBillionaireEquivalent(1000, 1000, undefined)).toThrow(
+            'All parameters are required',
+        );
     });
 
     test('throws error for zero net worth values', () => {
@@ -99,7 +101,9 @@ describe('calculatePercentageOfWealth', () => {
     test('throws error for missing parameters', () => {
         expect(() => calculatePercentageOfWealth(null, 1000)).toThrow('Both parameters are required');
         expect(() => calculatePercentageOfWealth(1000, null)).toThrow('Both parameters are required');
-        expect(() => calculatePercentageOfWealth(undefined, undefined)).toThrow('Both parameters are required');
+        expect(() => calculatePercentageOfWealth(undefined, undefined)).toThrow(
+            'Both parameters are required',
+        );
     });
 
     test('throws error for zero total wealth', () => {

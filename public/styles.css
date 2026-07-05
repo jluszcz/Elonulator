@@ -25,7 +25,7 @@
     --focus: #555;
     --header-bg: #1a1a1a;
     --header-text: #fff;
-    --shadow: rgba(0,0,0,.12);
+    --shadow: rgba(0, 0, 0, 0.12);
     --error-bg: #fef2f2;
     --error-border: #fca5a5;
     --error-text: #b91c1c;
@@ -47,7 +47,7 @@
         --focus: #aaa;
         --header-bg: #111;
         --header-text: #e8e8e8;
-        --shadow: rgba(0,0,0,.5);
+        --shadow: rgba(0, 0, 0, 0.5);
         --error-bg: #2d1515;
         --error-border: #7f1d1d;
         --error-text: #f87171;
@@ -55,7 +55,7 @@
     }
 }
 
-html[data-theme="dark"] {
+html[data-theme='dark'] {
     color-scheme: dark;
     --bg: #0d0d0d;
     --surface: #1a1a1a;
@@ -69,7 +69,7 @@ html[data-theme="dark"] {
     --focus: #aaa;
     --header-bg: #111;
     --header-text: #e8e8e8;
-    --shadow: rgba(0,0,0,.5);
+    --shadow: rgba(0, 0, 0, 0.5);
     --error-bg: #2d1515;
     --error-border: #7f1d1d;
     --error-text: #f87171;
@@ -114,7 +114,7 @@ header {
     color: var(--header-text);
     border-radius: 4px;
     opacity: 0.7;
-    transition: opacity .15s;
+    transition: opacity 0.15s;
     display: flex;
     align-items: center;
     flex-shrink: 0;
@@ -156,7 +156,7 @@ header {
 }
 
 .input-group select,
-.input-group input[type="number"] {
+.input-group input[type='number'] {
     width: 100%;
     padding: 15px;
     border: 2px solid var(--border);

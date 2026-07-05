@@ -4,7 +4,7 @@ import {
     formatCurrency,
     formatNumber,
     formatNumberWithCommas,
-    addThousandsSeparators
+    addThousandsSeparators,
 } from '../../public/utils.js';
 
 describe('formatCurrency', () => {

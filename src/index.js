@@ -6,34 +6,34 @@ const BILLION = 1000000000;
 
 // Update whenever BILLIONAIRE_DATA or MEDIAN_AMERICAN_NET_WORTH changes;
 // returned as `lastUpdated` by the /api/billionaires endpoint.
-const DATA_AS_OF = "2026-06-08";
+const DATA_AS_OF = '2026-06-08';
 
 const BILLIONAIRE_DATA = [
     {
-        name: "Elon Musk",
+        name: 'Elon Musk',
         netWorthBillions: 788,
-        source: "Tesla, SpaceX, X"
+        source: 'Tesla, SpaceX, X',
     },
     {
-        name: "Larry Page",
+        name: 'Larry Page',
         netWorthBillions: 300,
-        source: "Google"
+        source: 'Google',
     },
     {
-        name: "Sergey Brin",
+        name: 'Sergey Brin',
         netWorthBillions: 277,
-        source: "Google"
+        source: 'Google',
     },
     {
-        name: "Larry Ellison",
+        name: 'Larry Ellison',
         netWorthBillions: 261,
-        source: "Oracle"
+        source: 'Oracle',
     },
     {
-        name: "Jeff Bezos",
+        name: 'Jeff Bezos',
         netWorthBillions: 255,
-        source: "Amazon"
-    }
+        source: 'Amazon',
+    },
 ];
 
 const MEDIAN_AMERICAN_NET_WORTH = 193000; // $193,000
@@ -44,11 +44,11 @@ const BILLIONAIRES_RESPONSE_BODY = JSON.stringify({
         .sort((a, b) => b.netWorthBillions - a.netWorthBillions)
         .map(({ netWorthBillions, ...b }) => ({ ...b, netWorth: netWorthBillions * BILLION })),
     medianAmericanNetWorth: MEDIAN_AMERICAN_NET_WORTH,
-    lastUpdated: DATA_AS_OF
+    lastUpdated: DATA_AS_OF,
 });
 
 export default {
-    async fetch(request, env, ctx) {
+    async fetch(request, env, _ctx) {
         const url = new URL(request.url);
 
         // Handle API requests
@@ -78,8 +78,8 @@ export default {
                 status: 204,
                 headers: {
                     ...corsHeaders,
-                    'Access-Control-Max-Age': '86400'
-                }
+                    'Access-Control-Max-Age': '86400',
+                },
             });
         }
 
@@ -89,28 +89,36 @@ export default {
         // Unknown API endpoint: 404 regardless of method, since 405 implies
         // the target resource exists
         if (url.pathname !== '/api/billionaires') {
-            return new Response(isHead ? null : JSON.stringify({
-                error: 'Unknown API endpoint'
-            }), {
-                status: 404,
-                headers: jsonHeaders
-            });
+            return new Response(
+                isHead
+                    ? null
+                    : JSON.stringify({
+                          error: 'Unknown API endpoint',
+                      }),
+                {
+                    status: 404,
+                    headers: jsonHeaders,
+                },
+            );
         }
 
         if (request.method !== 'GET' && request.method !== 'HEAD') {
-            return new Response(JSON.stringify({
-                error: 'Method not allowed'
-            }), {
-                status: 405,
-                headers: { ...jsonHeaders, 'Allow': 'GET, HEAD, OPTIONS' }
-            });
+            return new Response(
+                JSON.stringify({
+                    error: 'Method not allowed',
+                }),
+                {
+                    status: 405,
+                    headers: { ...jsonHeaders, Allow: 'GET, HEAD, OPTIONS' },
+                },
+            );
         }
 
         return new Response(isHead ? null : BILLIONAIRES_RESPONSE_BODY, {
             headers: {
                 ...jsonHeaders,
-                'Cache-Control': 'public, max-age=3600'
-            }
+                'Cache-Control': 'public, max-age=3600',
+            },
         });
-    }
+    },
 };

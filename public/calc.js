@@ -11,9 +11,14 @@
  * @returns {number} Equivalent amount for median American
  */
 export function calculateMedianEquivalent(billionaireAmount, billionaireNetWorth, medianNetWorth) {
-    if (billionaireAmount === null || billionaireAmount === undefined ||
-        billionaireNetWorth === null || billionaireNetWorth === undefined ||
-        medianNetWorth === null || medianNetWorth === undefined) {
+    if (
+        billionaireAmount === null ||
+        billionaireAmount === undefined ||
+        billionaireNetWorth === null ||
+        billionaireNetWorth === undefined ||
+        medianNetWorth === null ||
+        medianNetWorth === undefined
+    ) {
         throw new Error('All parameters are required');
     }
     if (billionaireAmount < 0) {
@@ -35,9 +40,14 @@ export function calculateMedianEquivalent(billionaireAmount, billionaireNetWorth
  * @returns {number} Equivalent amount for billionaire
  */
 export function calculateBillionaireEquivalent(medianAmount, medianNetWorth, billionaireNetWorth) {
-    if (medianAmount === null || medianAmount === undefined ||
-        medianNetWorth === null || medianNetWorth === undefined ||
-        billionaireNetWorth === null || billionaireNetWorth === undefined) {
+    if (
+        medianAmount === null ||
+        medianAmount === undefined ||
+        medianNetWorth === null ||
+        medianNetWorth === undefined ||
+        billionaireNetWorth === null ||
+        billionaireNetWorth === undefined
+    ) {
         throw new Error('All parameters are required');
     }
     if (medianAmount < 0) {
@@ -58,8 +68,7 @@ export function calculateBillionaireEquivalent(medianAmount, medianNetWorth, bil
  * @returns {string} Percentage with 1 decimal place
  */
 export function calculatePercentageOfWealth(amount, totalWealth) {
-    if (amount === null || amount === undefined ||
-        totalWealth === null || totalWealth === undefined) {
+    if (amount === null || amount === undefined || totalWealth === null || totalWealth === undefined) {
         throw new Error('Both parameters are required');
     }
     if (totalWealth <= 0) {

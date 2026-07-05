@@ -1,0 +1,4 @@
+.claude/
+coverage/
+.wrangler/
+package-lock.json
