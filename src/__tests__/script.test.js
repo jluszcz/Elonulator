@@ -27,8 +27,10 @@ const PAGE_HTML = `
     <input id="median-net-worth">
     <label id="billionaire-amount-label">Amount for Billionaire</label>
     <input id="billionaire-amount">
+    <button id="clear-billionaire-amount" hidden></button>
     <label id="median-amount-label">Equivalent for Median American</label>
     <input id="median-american-amount">
+    <button id="clear-median-american-amount" hidden></button>
     <button id="swap-direction"></button>
     <p id="calculator-description"></p>
     <div id="comparison-text"><p id="comparison-message"></p></div>
@@ -143,6 +145,66 @@ describe('billionaire-to-median calculation', () => {
         expect(comparisonText.style.display).toBe('none');
 
         medianNetWorth.value = '100,000';
+    });
+});
+
+describe('inline clear button', () => {
+    test('is hidden until the editable amount has a value', () => {
+        const clearBtn = document.getElementById('clear-billionaire-amount');
+        billionaireAmount.value = '';
+        select.value = '0';
+        recalculate();
+        expect(clearBtn.hidden).toBe(true);
+
+        typeInto(billionaireAmount, '100,000,000');
+        expect(clearBtn.hidden).toBe(false);
+    });
+
+    test('clearing empties both amounts and hides the comparison without changing the selection', async () => {
+        const clearBtn = document.getElementById('clear-billionaire-amount');
+        typeInto(billionaireAmount, '100,000,000');
+        recalculate();
+        expect(medianAmount.value).toBe('10,000.00');
+        expect(comparisonText.style.display).toBe('block');
+
+        clearBtn.click();
+
+        expect(billionaireAmount.value).toBe('');
+        expect(medianAmount.value).toBe('');
+        expect(comparisonText.style.display).toBe('none');
+        expect(clearBtn.hidden).toBe(true);
+        // Selection and net worths are left intact
+        expect(select.value).toBe('0');
+        expect(billionaireNetWorth.value).toBe('1,000,000,000');
+
+        await flushDebounce();
+    });
+
+    test('never appears on the readonly computed field', () => {
+        const computedClearBtn = document.getElementById('clear-median-american-amount');
+        billionaireAmount.value = '100,000,000';
+        select.value = '0';
+        recalculate();
+
+        // The computed median field now holds a value...
+        expect(medianAmount.value).toBe('10,000.00');
+        expect(medianAmount.hasAttribute('readonly')).toBe(true);
+        // ...but as the readonly side it never offers a clear button
+        expect(computedClearBtn.hidden).toBe(true);
+    });
+
+    test('re-hides once the editable amount is emptied by typing', async () => {
+        const clearBtn = document.getElementById('clear-billionaire-amount');
+        select.value = '0';
+        recalculate();
+
+        typeInto(billionaireAmount, '100,000,000');
+        expect(clearBtn.hidden).toBe(false);
+
+        typeInto(billionaireAmount, '');
+        expect(clearBtn.hidden).toBe(true);
+
+        await flushDebounce();
     });
 });
 
