@@ -13,6 +13,13 @@ API at `/api/billionaires`.
 - `npm run build` — no-op build step; static assets are served as-is
 - `npm run deploy` — deploy the Worker with `wrangler deploy`
 
+## Before committing
+
+The `Build, Lint, and Test` GitHub workflow (`.github/workflows/test.yml`) runs `npm run lint`,
+`npm run format:check`, and `npm test` on every push and pull request. Run these same checks
+locally and confirm they pass **before** committing any change — do not rely on CI to catch
+formatting or lint issues after the fact.
+
 ## Source data
 
 Billionaire net worths and the median American net worth are hardcoded in `src/index.js`
