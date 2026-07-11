@@ -15,8 +15,8 @@ API at `/api/billionaires`.
 
 ## Before committing
 
-The `Build, Lint, and Test` GitHub workflow (`.github/workflows/test.yml`) runs `npm run lint`,
-`npm run format:check`, and `npm test` on every push and pull request. Run these same checks
+The `CI` GitHub workflow (`.github/workflows/ci.yml`) runs `npm run build`, `npm test`, and
+`npm run lint` + `npm run format:check` on every push and pull request. Run these same checks
 locally and confirm they pass **before** committing any change — do not rely on CI to catch
 formatting or lint issues after the fact.
 
