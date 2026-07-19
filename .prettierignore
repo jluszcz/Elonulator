@@ -2,3 +2,4 @@
 coverage/
 .wrangler/
 package-lock.json
+.github/
