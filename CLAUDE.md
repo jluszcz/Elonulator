@@ -15,9 +15,14 @@ API at `/api/billionaires`.
 
 ## Before committing
 
-The `CI` GitHub workflow (`.github/workflows/ci.yml`) runs `npm run build`, `npm test`, and
-`npm run lint` + `npm run format:check` on every push and pull request. Run these same checks
-locally and confirm they pass **before** committing any change — do not rely on CI to catch
+`.github/workflows/ci.yml` is a thin caller of
+`jluszcz/github-utils/.github/workflows/node-ci.yml@v1` — the steps live in that shared workflow,
+not in this repo. It installs with `npm ci` against the lockfile on Node 22, then runs
+`npm run build`, `npm test`, `npm run lint`, and `npm run format:check`.
+
+Note the triggers are scoped to `main`: pushes to a **feature branch do not run CI**, only pushes
+to `main` and pull requests targeting `main`. Since work happens on feature branches, run these
+checks locally and confirm they pass **before** committing any change — do not rely on CI to catch
 formatting or lint issues after the fact.
 
 ## Source data
