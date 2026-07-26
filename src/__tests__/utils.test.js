@@ -2,6 +2,7 @@ import { describe, test, expect } from 'vitest';
 
 import {
     formatCurrency,
+    parseFormattedNumber,
     formatNumber,
     formatNumberWithCommas,
     addThousandsSeparators,
@@ -17,13 +18,15 @@ describe('formatCurrency', () => {
     test('formats millions correctly', () => {
         expect(formatCurrency(1000000)).toBe('$1.00 million');
         expect(formatCurrency(50000000)).toBe('$50.00 million');
-        expect(formatCurrency(999999999)).toBe('$1000.00 million');
+        // Rounding must not cross a unit boundary: 999,999,999 rounds to
+        // 1000.00 million, which is a billion.
+        expect(formatCurrency(999999999)).toBe('$1.00 billion');
     });
 
     test('formats thousands correctly', () => {
         expect(formatCurrency(1000)).toBe('$1.00 thousand');
         expect(formatCurrency(50000)).toBe('$50.00 thousand');
-        expect(formatCurrency(999999)).toBe('$1000.00 thousand');
+        expect(formatCurrency(999999)).toBe('$1.00 million');
     });
 
     test('formats small amounts correctly', () => {
@@ -33,20 +36,23 @@ describe('formatCurrency', () => {
     });
 
     test('handles negative numbers', () => {
-        expect(formatCurrency(-1000000000)).toBe('$-1.00 billion');
-        expect(formatCurrency(-1000000)).toBe('$-1.00 million');
-        expect(formatCurrency(-1000)).toBe('$-1.00 thousand');
-        expect(formatCurrency(-100)).toBe('$-100.00');
+        // The sign belongs outside the dollar sign, not after it.
+        expect(formatCurrency(-1000000000)).toBe('-$1.00 billion');
+        expect(formatCurrency(-1000000)).toBe('-$1.00 million');
+        expect(formatCurrency(-1000)).toBe('-$1.00 thousand');
+        expect(formatCurrency(-100)).toBe('-$100.00');
     });
 
     test('handles boundary values correctly', () => {
-        // Just below billion threshold
-        expect(formatCurrency(999999999)).toBe('$1000.00 million');
+        // Just below billion threshold — rounds up into billions
+        expect(formatCurrency(999999999)).toBe('$1.00 billion');
+        // Far enough below to stay in millions
+        expect(formatCurrency(994000000)).toBe('$994.00 million');
         // Exactly at billion threshold
         expect(formatCurrency(1000000000)).toBe('$1.00 billion');
 
-        // Just below million threshold
-        expect(formatCurrency(999999)).toBe('$1000.00 thousand');
+        // Just below million threshold — rounds up into millions
+        expect(formatCurrency(999999)).toBe('$1.00 million');
         // Exactly at million threshold
         expect(formatCurrency(1000000)).toBe('$1.00 million');
 
@@ -126,5 +132,24 @@ describe('addThousandsSeparators', () => {
 
     test('handles empty string', () => {
         expect(addThousandsSeparators('')).toBe('');
+    });
+});
+
+describe('parseFormattedNumber', () => {
+    test('parses a formatted value', () => {
+        expect(parseFormattedNumber('1,234.56')).toBe(1234.56);
+        expect(parseFormattedNumber('$1,000')).toBe(1000);
+    });
+
+    test('rejects a value with a second decimal point', () => {
+        // addThousandsSeparators deliberately preserves a stray second dot, so
+        // a user can hold "1.2.3" in a field. parseFloat would read 1.2 and the
+        // app would calculate confidently on the wrong number.
+        expect(parseFormattedNumber('1.2.3')).toBeNaN();
+    });
+
+    test('rejects an empty or non-numeric value', () => {
+        expect(parseFormattedNumber('')).toBeNaN();
+        expect(parseFormattedNumber('abc')).toBeNaN();
     });
 });

@@ -12,6 +12,42 @@ API at `/api/billionaires`.
 - `npm run format` — format with Prettier (`format:check` to check only; CI runs both checks)
 - `npm run build` — no-op build step; static assets are served as-is
 - `npm run deploy` — deploy the Worker with `wrangler deploy`
+- `pre-commit run --all-files` — the hooks in `.pre-commit-config.yaml`, which run the same tools
+
+## Layout
+
+The frontend is split three ways, and the split is enforced by convention rather than tooling —
+each file says so in its own header:
+
+- `public/utils.js` — **formatting only** (`formatCurrency`, `formatNumberWithCommas`,
+  `parseFormattedNumber`, …). No calculation.
+- `public/calc.js` — **calculation only**. Both directions of the calculator are
+  `scaleByWealthRatio`; `calculateMedianEquivalent` and `calculateBillionaireEquivalent` are named
+  aliases over it, so validation lives in one place.
+- `public/script.js` — all DOM wiring and module-level state. Put a formatter in `utils.js`, not here.
+
+`src/index.js` is the Worker: static assets plus `/api/billionaires`.
+
+## Tests
+
+Tests for `public/*.js` live in `src/__tests__/`, not beside the code. The default environment is
+`node`; a file that needs a DOM opts in with a `// @vitest-environment happy-dom` comment on line 1
+(see `script.test.js`).
+
+`script.js` wires itself up on import, so a test needing different startup conditions — the
+API-failure path, for instance — needs its own file with the stubs in place before the import.
+`script-error.test.js` is that pattern.
+
+**Coverage thresholds are 80% on all four metrics and are measured over everything in `src/` and
+`public/`.** `public/script.js` used to be excluded, which meant "100% coverage" was measured over
+58 statements while the 437-line file carrying most of the app went unmeasured. Don't re-add an
+exclusion to make a number look better.
+
+## Formatting
+
+Prettier is configured for 4-space indent, single quotes, and 110 columns (`.prettierrc`).
+`.github/` is Prettier-ignored (`.prettierignore`), which is why the workflow YAML uses 2-space
+indent while everything else uses 4.
 
 ## Before committing
 
@@ -33,4 +69,5 @@ dollars and expanded to absolute dollars when the API responds. The list is sort
 when served, so source order does not matter.
 
 **When you update any of this source data, also update the `DATA_AS_OF` constant in
-`src/index.js`** — it is returned as `lastUpdated` by the `/api/billionaires` handler.
+`src/index.js`** — it is returned as `lastUpdated` by the `/api/billionaires` handler. The worked
+example in `README.md` quotes both figures too, so it needs the same update.

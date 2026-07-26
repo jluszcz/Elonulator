@@ -12,15 +12,24 @@ export function formatCurrency(amount) {
     const absAmount = Math.abs(amount);
     const sign = amount < 0 ? '-' : '';
 
-    if (absAmount >= 1000000000) {
-        return `$${sign}${(absAmount / 1000000000).toFixed(2)} billion`;
-    } else if (absAmount >= 1000000) {
-        return `$${sign}${(absAmount / 1000000).toFixed(2)} million`;
-    } else if (absAmount >= 1000) {
-        return `$${sign}${(absAmount / 1000).toFixed(2)} thousand`;
-    } else {
-        return `$${amount.toFixed(2)}`;
+    // Largest unit first. The unit is chosen from the *rounded* mantissa, so a
+    // value like 999,999,999 formats as "$1.00 billion" rather than
+    // "$1000.00 million" — picking the unit before rounding let the display
+    // round across the boundary.
+    const units = [
+        [1000000000, 'billion'],
+        [1000000, 'million'],
+        [1000, 'thousand'],
+    ];
+
+    for (const [divisor, name] of units) {
+        const mantissa = absAmount / divisor;
+        if (mantissa >= 0.9995) {
+            return `${sign}$${mantissa.toFixed(2)} ${name}`;
+        }
     }
+
+    return `${sign}$${absAmount.toFixed(2)}`;
 }
 
 /**
@@ -57,4 +66,22 @@ export function addThousandsSeparators(value) {
     const [integerPart, ...decimalParts] = value.split('.');
     const withCommas = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     return decimalParts.length === 0 ? withCommas : `${withCommas}.${decimalParts.join('.')}`;
+}
+
+/**
+ * Parse a formatted input value ("1,000,000") into a number.
+ *
+ * Returns NaN for malformed input rather than truncating it. `parseFloat` reads
+ * "1.2.3" as 1.2, and `addThousandsSeparators` deliberately preserves a stray
+ * second decimal point while typing — so without this check the app calculates
+ * confidently on a number the user never entered.
+ * @param {string} value - The raw input value
+ * @returns {number} The parsed number, or NaN if the value is not a valid number
+ */
+export function parseFormattedNumber(value) {
+    const cleaned = String(value ?? '').replace(/[^0-9.]/g, '');
+    if (cleaned === '' || (cleaned.match(/\./g) || []).length > 1) {
+        return NaN;
+    }
+    return parseFloat(cleaned);
 }

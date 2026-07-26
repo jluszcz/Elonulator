@@ -1,5 +1,11 @@
 // Import shared utility functions
-import { formatCurrency, formatNumber, formatNumberWithCommas, addThousandsSeparators } from './utils.js';
+import {
+    formatCurrency,
+    formatNumber,
+    formatNumberWithCommas,
+    addThousandsSeparators,
+    parseFormattedNumber,
+} from './utils.js';
 import {
     calculateMedianEquivalent,
     calculateBillionaireEquivalent,
@@ -61,13 +67,17 @@ function hideError() {
 
 // Parse a formatted input value ("1,000,000") into a number
 function parseInputValue(inputElement) {
-    return parseFloat(inputElement.value.replace(/[^0-9.]/g, ''));
+    return parseFormattedNumber(inputElement.value);
 }
 
-// Whether the median net worth input differs from the loaded median value
+// Whether the median net worth input differs from the loaded median value.
+// Compares display strings for the same reason the billionaire side does: a
+// fractional net worth rounds on display, so the parsed value never matches.
 function isCustomMedian() {
-    const value = parseInputValue(medianNetWorthInput);
-    return !isNaN(value) && value !== medianNetWorth;
+    return (
+        medianNetWorthInput.value !== '' &&
+        medianNetWorthInput.value !== formatNumberWithCommas(medianNetWorth)
+    );
 }
 
 function billionaireTier() {
