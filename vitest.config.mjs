@@ -6,10 +6,7 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             include: ['src/**/*.js', 'public/**/*.js'],
-            exclude: [
-                'src/__tests__/**',
-                'public/script.js', // Browser entry point - smoke-tested in script.test.js, but DOM wiring is excluded from coverage metrics
-            ],
+            exclude: ['src/__tests__/**'],
             thresholds: {
                 branches: 80,
                 functions: 80,

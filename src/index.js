@@ -53,14 +53,14 @@ export default {
 
         // Handle API requests
         if (url.pathname.startsWith('/api/')) {
-            return this.handleApiRequest(request, env, url);
+            return this.handleApiRequest(request, url);
         }
 
         // Serve static assets for all other requests
         return env.ASSETS.fetch(request);
     },
 
-    handleApiRequest(request, env, url) {
+    handleApiRequest(request, url) {
         // Enable CORS for API requests
         const corsHeaders = {
             'Access-Control-Allow-Origin': '*',
@@ -72,7 +72,10 @@ export default {
             'Content-Type': 'application/json',
         };
 
-        // Handle OPTIONS preflight requests
+        // Handle OPTIONS preflight requests. This precedes the path check, so a
+        // preflight for an unknown /api/ path also gets 204 — preflight is about
+        // whether the method and headers are allowed, not whether the resource
+        // exists, and the follow-up request still 404s.
         if (request.method === 'OPTIONS') {
             return new Response(null, {
                 status: 204,

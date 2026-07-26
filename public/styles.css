@@ -199,12 +199,6 @@ header {
     font-weight: 500;
 }
 
-.stat-value {
-    font-size: 1.3rem;
-    font-weight: bold;
-    color: var(--text-strong);
-}
-
 .stat-value-input {
     font-size: 1.1rem;
     font-weight: 600;
@@ -214,6 +208,13 @@ header {
     border: none;
     width: 100%;
     outline: none;
+}
+
+/* There is no border to recolor on focus, so without this the net-worth inputs
+   give keyboard users no focus indicator at all (WCAG 2.4.7). */
+.stat-value-input:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
 }
 
 .calculator-section {

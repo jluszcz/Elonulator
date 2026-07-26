@@ -211,3 +211,23 @@ describe('CloudFlare Worker', () => {
         });
     });
 });
+
+describe('CORS preflight', () => {
+    test('answers OPTIONS for an unknown API path', async () => {
+        // Deliberate: preflight asks whether the method and headers are allowed,
+        // not whether the resource exists. The follow-up GET still 404s.
+        const response = await worker.fetch(
+            new Request('https://example.com/api/unknown', { method: 'OPTIONS' }),
+            {},
+        );
+
+        expect(response.status).toBe(204);
+        expect(response.headers.get('Access-Control-Allow-Methods')).toContain('OPTIONS');
+    });
+
+    test('still 404s a GET to that path', async () => {
+        const response = await worker.fetch(new Request('https://example.com/api/unknown'), {});
+
+        expect(response.status).toBe(404);
+    });
+});
