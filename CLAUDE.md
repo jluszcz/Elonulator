@@ -52,7 +52,7 @@ indent while everything else uses 4.
 ## Before committing
 
 `.github/workflows/ci.yml` is a thin caller of
-`jluszcz/github-utils/.github/workflows/node-ci.yml@v1` — the steps live in that shared workflow,
+`jluszcz/github-utils/.github/workflows/node-ci.yml` — the steps live in that shared workflow,
 not in this repo. It installs with `npm ci` against the lockfile on Node 22, then runs
 `npm run build`, `npm test`, `npm run lint`, and `npm run format:check`.
 
