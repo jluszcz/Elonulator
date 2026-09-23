@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 Elonulator is a Cloudflare Worker that visualizes wealth inequality through relative-worth
 calculations. The Worker (`src/index.js`) serves a static frontend (`public/`) and a small JSON
