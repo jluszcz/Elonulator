@@ -27,14 +27,18 @@ const PAGE_HTML = `
     <button id="theme-btn"></button>
 `;
 
+// Captured inside beforeAll because Vitest clears mock calls before each test.
+let consoleErrorCalls;
+
 beforeAll(async () => {
     document.body.innerHTML = PAGE_HTML;
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network down')));
     vi.stubGlobal('localStorage', { getItem: vi.fn(() => null), setItem: vi.fn() });
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     await import('../../public/script.js');
     await new Promise((resolve) => setTimeout(resolve, 0));
+    consoleErrorCalls = [...consoleError.mock.calls];
 });
 
 describe('loadBillionaireData failure', () => {
@@ -49,6 +53,9 @@ describe('loadBillionaireData failure', () => {
     });
 
     test('logs the underlying cause for debugging', () => {
-        expect(console.error).toHaveBeenCalled();
+        expect(consoleErrorCalls).toContainEqual([
+            'Error loading billionaire data:',
+            expect.objectContaining({ message: 'network down' }),
+        ]);
     });
 });
