@@ -20,7 +20,7 @@ The calculator uses a simple ratio to show perspective:
 Equivalent Amount = (Billionaire Spending / Billionaire Net Worth) × Median American Net Worth
 ```
 
-For example, if Elon Musk (net worth ~$788 billion) buys a $788 million yacht, that represents 0.1% of his wealth. For the median American (net worth ~$193,000), 0.1% would be about $193.
+For example, if Elon Musk (net worth ~$898 billion) buys a $898 million yacht, that represents 0.1% of his wealth. For the median American (net worth ~$216,000), 0.1% would be about $216.
 
 Those figures come from `src/index.js` — `BILLIONAIRE_DATA` and `MEDIAN_AMERICAN_NET_WORTH`. If you update them, update this example too.
 
