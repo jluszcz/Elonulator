@@ -65,7 +65,7 @@ formatting or lint issues after the fact.
 
 Billionaire net worths and the median American net worth are hardcoded in `src/index.js`
 (`BILLIONAIRE_DATA` and `MEDIAN_AMERICAN_NET_WORTH`). Net worths are entered in billions of
-dollars and expanded to absolute dollars when the API responds. The list is sorted by net worth
+dollars and expanded to absolute dollars when the API responds. The list is sorted by net worth (ties broken by name)
 when served, so source order does not matter.
 
 **When you update any of this source data, also update the `DATA_AS_OF` constant in

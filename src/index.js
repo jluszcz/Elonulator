@@ -6,42 +6,43 @@ const BILLION = 1000000000;
 
 // Update whenever BILLIONAIRE_DATA or MEDIAN_AMERICAN_NET_WORTH changes;
 // returned as `lastUpdated` by the /api/billionaires endpoint.
-const DATA_AS_OF = '2026-06-08';
+const DATA_AS_OF = '2026-11-10';
 
 const BILLIONAIRE_DATA = [
     {
         name: 'Elon Musk',
-        netWorthBillions: 788,
+        netWorthBillions: 898,
         source: 'Tesla, SpaceX, X',
     },
     {
+        name: 'Jeff Bezos',
+        netWorthBillions: 385,
+        source: 'Amazon',
+    },
+    {
         name: 'Larry Page',
-        netWorthBillions: 300,
+        netWorthBillions: 239,
         source: 'Google',
+    },
+    {
+        name: 'Mark Zuckerberg',
+        netWorthBillions: 220,
+        source: 'Meta',
     },
     {
         name: 'Sergey Brin',
-        netWorthBillions: 277,
+        netWorthBillions: 220,
         source: 'Google',
-    },
-    {
-        name: 'Larry Ellison',
-        netWorthBillions: 261,
-        source: 'Oracle',
-    },
-    {
-        name: 'Jeff Bezos',
-        netWorthBillions: 255,
-        source: 'Amazon',
     },
 ];
 
-const MEDIAN_AMERICAN_NET_WORTH = 193000; // $193,000
+const MEDIAN_AMERICAN_NET_WORTH = 216000; // $216,000
 
 // The data is static per deployment, so the response body is built once at startup
 const BILLIONAIRES_RESPONSE_BODY = JSON.stringify({
     billionaires: [...BILLIONAIRE_DATA]
-        .sort((a, b) => b.netWorthBillions - a.netWorthBillions)
+        // Name breaks net-worth ties so the served order never depends on source order
+        .sort((a, b) => b.netWorthBillions - a.netWorthBillions || a.name.localeCompare(b.name))
         .map(({ netWorthBillions, ...b }) => ({ ...b, netWorth: netWorthBillions * BILLION })),
     medianAmericanNetWorth: MEDIAN_AMERICAN_NET_WORTH,
     lastUpdated: DATA_AS_OF,
